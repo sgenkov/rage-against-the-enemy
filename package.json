@@ -1,0 +1,34 @@
+{
+  "name": "rage-against-the-enemy",
+  "version": "1.0.0",
+  "description": "PixiJS Experience",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "gts lint",
+    "clean": "gts clean",
+    "compile": "tsc",
+    "fix": "gts fix",
+    "prepare": "npm.cmd run compile",
+    "pretest": "npm.cmd run compile",
+    "posttest": "npm.cmd run lint"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sgenkov/rage-against-the-enemy.git"
+  },
+  "author": "Stanimir Genkov",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/sgenkov/rage-against-the-enemy/issues"
+  },
+  "homepage": "https://github.com/sgenkov/rage-against-the-enemy#readme",
+  "dependencies": {
+    "@types/pixi.js": "^4.5.3"
+  },
+  "devDependencies": {
+    "gts": "^3.0.2",
+    "typescript": "^4.0.3",
+    "@types/node": "^14.11.2"
+  }
+}
