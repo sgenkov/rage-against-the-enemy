@@ -2,16 +2,12 @@
   "name": "rage-against-the-enemy",
   "version": "1.0.0",
   "description": "PixiJS Experience",
-  "main": "index.js",
+  "main": "index.ts",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "babel src --out-dir dist",
     "lint": "gts lint",
     "clean": "gts clean",
-    "compile": "tsc",
-    "fix": "gts fix",
-    "prepare": "npm.cmd run compile",
-    "pretest": "npm.cmd run compile",
-    "posttest": "npm.cmd run lint"
+    "compile": "browserify src/index.ts -p [ tsify --noImplicitAny] > bundle.js"
   },
   "repository": {
     "type": "git",
@@ -24,11 +20,15 @@
   },
   "homepage": "https://github.com/sgenkov/rage-against-the-enemy#readme",
   "dependencies": {
-    "@types/pixi.js": "^4.5.3"
+    "@types/pixi.js": "^4.5.3",
+    "tsify": "^5.0.2"
   },
   "devDependencies": {
+    "@babel/cli": "^7.12.1",
+    "@babel/core": "^7.12.3",
+    "@babel/preset-env": "^7.12.1",
+    "@types/node": "^14.11.2",
     "gts": "^3.0.2",
-    "typescript": "^4.0.3",
-    "@types/node": "^14.11.2"
+    "typescript": "^4.0.3"
   }
 }

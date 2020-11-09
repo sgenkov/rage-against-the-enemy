@@ -1,24 +1,25 @@
-console.log('Try npm run lint/fix!');
+import { exportedValue } from './TestFolder/TestFile';
+import { testFn } from './TestFolder2/TestFile2';
+import { MathSolver } from './ClassFolder/MathSolver';
 
-const longString =
-  'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer ut aliquet diam.';
+const test: string = "Hello World!";
+console.log(test);
+console.log(exportedValue);
 
-const trailing = 'Semicolon';
+const number1: number = 23;
+const number2: number = 32; 
+const result: number = testFn(number1, number2);
+console.log(result);
 
-const why = 'am I tabbed?';
+const SOLVER = new MathSolver("Solver1");
+console.log(SOLVER.name);
+SOLVER.name = 'Miro' ; 
+console.log(SOLVER.name);
 
-export function doSomeStuff(
-  withThis: string,
-  andThat: string,
-  andThose: string[]
-) {
-  //function on one line
-  if (!andThose.length) {
-    return false;
-  }
-  console.log(withThis);
-  console.log(andThat);
-  console.dir(andThose);
-  return;
-}
-// TODO: more examples
+const SOLVER2 = new MathSolver('LEMMY');
+console.log(SOLVER2.name);
+
+
+
+
+
