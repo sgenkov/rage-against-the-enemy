@@ -1,5 +1,6 @@
 import { app } from '../../index';
 import { Bullet } from '../Other/Bullet';
+import { BulletOrigin } from '../Types/BulletType';
 export class PlayerShip {
 
     public static shipsCreated = 0;
@@ -60,7 +61,7 @@ export class PlayerShip {
     };
 
     public fire(): Bullet {
-        return new Bullet(this.x, this.y);
+        return new Bullet(this.x, this.y, BulletOrigin.player );
     };
 
 

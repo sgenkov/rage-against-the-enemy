@@ -1,4 +1,6 @@
 import { app } from '../../index';
+import { Bullet } from '../../Models/Other/Bullet';
+import { BulletOrigin } from '../Types/BulletType';
 export class Enemy {
     public static generatedEnemies: number = 0;
     private sprite: PIXI.Sprite;
@@ -44,6 +46,9 @@ export class Enemy {
     public removeEnemy(): void {
         app.stage.removeChild(this.sprite);
         Enemy.enemies.splice(Enemy.enemies.findIndex(enemy => enemy.x === this.sprite.x), 1);
+    };
+    public fire(): Bullet {
+        return new Bullet(this.x, this.y, BulletOrigin.enemy);
     };
    
 };

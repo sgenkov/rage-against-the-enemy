@@ -3,6 +3,8 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Enemy = void 0;
 const index_1 = require("../../index");
+const Bullet_1 = require("../../Models/Other/Bullet");
+const BulletType_1 = require("../Types/BulletType");
 class Enemy {
     constructor() {
         this._movementSpeed = 2;
@@ -49,24 +51,30 @@ class Enemy {
         Enemy.enemies.splice(Enemy.enemies.findIndex(enemy => enemy.x === this.sprite.x), 1);
     }
     ;
+    fire() {
+        return new Bullet_1.Bullet(this.x, this.y, BulletType_1.BulletOrigin.enemy);
+    }
+    ;
 }
 exports.Enemy = Enemy;
 Enemy.generatedEnemies = 0;
 Enemy.enemies = [];
 ;
 
-},{"../../index":4}],2:[function(require,module,exports){
+},{"../../Models/Other/Bullet":2,"../../index":5,"../Types/BulletType":4}],2:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Bullet = void 0;
 const index_1 = require("../../index");
+const BulletType_1 = require("../Types/BulletType");
 class Bullet {
-    constructor(ownerX, ownerY) {
-        this._movementSpeed = 20;
+    constructor(ownerX, ownerY, origin) {
         this.sprite = PIXI.Sprite.from(index_1.app.loader.resources.bulletRight.url);
         this.sprite.x = ownerX;
         this.sprite.y = ownerY;
         this.sprite.anchor.set(0.5);
+        this.origin = origin;
+        this.movementSpeed = ((origin === BulletType_1.BulletOrigin.player) ? 20 : -20);
         Bullet.bullets.push(this);
         index_1.app.stage.addChild(this.sprite);
     }
@@ -93,6 +101,10 @@ class Bullet {
         return this.sprite.y;
     }
     ;
+    set movementSpeed(value) {
+        this._movementSpeed = value;
+    }
+    ;
     get movementSpeed() {
         return this._movementSpeed;
     }
@@ -111,12 +123,13 @@ exports.Bullet = Bullet;
 Bullet.bullets = [];
 ;
 
-},{"../../index":4}],3:[function(require,module,exports){
+},{"../../index":5,"../Types/BulletType":4}],3:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.PlayerShip = void 0;
 const index_1 = require("../../index");
 const Bullet_1 = require("../Other/Bullet");
+const BulletType_1 = require("../Types/BulletType");
 class PlayerShip {
     constructor() {
         this._livesLeft = 3;
@@ -169,7 +182,7 @@ class PlayerShip {
     }
     ;
     fire() {
-        return new Bullet_1.Bullet(this.x, this.y);
+        return new Bullet_1.Bullet(this.x, this.y, BulletType_1.BulletOrigin.player);
     }
     ;
 }
@@ -177,7 +190,18 @@ exports.PlayerShip = PlayerShip;
 PlayerShip.shipsCreated = 0;
 ;
 
-},{"../../index":4,"../Other/Bullet":2}],4:[function(require,module,exports){
+},{"../../index":5,"../Other/Bullet":2,"../Types/BulletType":4}],4:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.BulletOrigin = void 0;
+var BulletOrigin;
+(function (BulletOrigin) {
+    BulletOrigin[BulletOrigin["player"] = 1] = "player";
+    BulletOrigin[BulletOrigin["enemy"] = 2] = "enemy";
+})(BulletOrigin = exports.BulletOrigin || (exports.BulletOrigin = {}));
+;
+
+},{}],5:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.app = void 0;
@@ -326,7 +350,8 @@ exports.app.loader
     .add("shipDown", "shipDown.png")
     .add("bulletRight", "bulletRight.png")
     .add("player", "player.png")
-    .add("enemyLeft", "enemyLeft.png");
+    .add("enemyLeft", "enemyLeft.png")
+    .add("bulletLeft", "enemyBulletLeft.png");
 exports.app.loader.onProgress.add(showProgress);
 exports.app.loader.onComplete.add(doneLoading);
 exports.app.loader.onError.add(reportError);
@@ -345,4 +370,4 @@ document.body.addEventListener("pointerdown", () => PLAYER.fire());
 // stage.hitArea = new PIXI.Rectangle(0, 0, 1000, 1000);
 // renderer.render(stage);
 
-},{"./Models/Enemy/Enemy":1,"./Models/Other/Bullet":2,"./Models/Player/PlayerShip":3}]},{},[4]);
+},{"./Models/Enemy/Enemy":1,"./Models/Other/Bullet":2,"./Models/Player/PlayerShip":3}]},{},[5]);

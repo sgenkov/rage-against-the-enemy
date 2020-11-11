@@ -160,6 +160,7 @@ app.loader
     .add("bulletRight", "bulletRight.png")
     .add("player", "player.png")
     .add("enemyLeft", "enemyLeft.png")
+    .add("bulletLeft", "enemyBulletLeft.png")
 
 app.loader.onProgress.add(showProgress);
 app.loader.onComplete.add(doneLoading);

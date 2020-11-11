@@ -1,14 +1,18 @@
 import { app } from '../../index';
+import { BulletOrigin } from '../Types/BulletType';
 export class Bullet {
     public static bullets: Bullet[] = [];
     private sprite: PIXI.Sprite;
-    private _movementSpeed: number = 20;
+    private _movementSpeed: number; 
+    private origin: BulletOrigin;
 
-    public constructor(ownerX: number, ownerY: number) {
+    public constructor(ownerX: number, ownerY: number, origin: BulletOrigin) {
         this.sprite = PIXI.Sprite.from(app.loader.resources.bulletRight.url);
         this.sprite.x = ownerX;
         this.sprite.y = ownerY;
         this.sprite.anchor.set(0.5);
+        this.origin = origin;
+        this.movementSpeed = ((origin === BulletOrigin.player)? 20 : -20);
         Bullet.bullets.push(this);
         app.stage.addChild(this.sprite);
     };
@@ -29,6 +33,11 @@ export class Bullet {
     };
     public get y(): number {
         return this.sprite.y;
+    };
+
+
+    public set movementSpeed(value: number) {
+        this._movementSpeed = value;
     };
 
     public get movementSpeed(): number {
