@@ -82,7 +82,13 @@ function gameLoop() {
         PLAYER.fire();
         setTimeout(() => keys["32"] = false, 10);
     };
-    
+    Enemy.enemies.forEach(enemy => {
+        const chance: number = Math.random() * 100;
+        console.log(chance);
+        if (chance < 1) {
+            enemy.fire();
+        };
+    });
     Enemy.enemies.forEach(enemy => enemy.x -= enemy.movementSpeed);
     
     Enemy.enemies.forEach((enemy, index) => {
@@ -108,18 +114,24 @@ function gameLoop() {
 
     livesInfo.innerHTML = 'Lives: ' + JSON.stringify(globalLivesLeft);
     scoreInfo.innerHTML = 'Score: ' + JSON.stringify(score);
-    bulletsInfo.innerHTML = 'Bullets: ' + Bullet.bullets.map(bullet => { // delete this row on production
+    bulletsInfo.innerHTML = 'Bullets: ' + Bullet.bullets.map((bullet, index) => { // delete this row on production
+        if(index > 6) {
+            return '...';
+        }
         return JSON.stringify({
             X: bullet.x,
-            Y: bullet.y
+            Y: Math.round(bullet.y)
         })
     });
     
     if(enemiesInfo) {
-        enemiesInfo.innerHTML = 'Enemies: ' + Enemy.enemies.map(enemy => {
+        enemiesInfo.innerHTML = 'Enemies: ' + Enemy.enemies.map((enemy, index) => {
+            if(index > 6) {
+                return '...';
+            }
             return JSON.stringify({
                 X: enemy.x,
-                Y: enemy.y
+                Y: Math.round(enemy.y)
             })
         });
     }
@@ -171,7 +183,7 @@ app.stage.interactive = true;
 document.addEventListener("keydown", keysDown);
 document.addEventListener("keyup", keysUp);
 // keysInfo.innerHTML = JSON.stringify(keys);
-    document.body.addEventListener("pointerdown", () =>PLAYER.fire());
+    document.body.addEventListener("pointerdown", () => PLAYER.fire());
 
 
 

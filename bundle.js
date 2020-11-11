@@ -69,19 +69,20 @@ const index_1 = require("../../index");
 const BulletType_1 = require("../Types/BulletType");
 class Bullet {
     constructor(ownerX, ownerY, origin) {
-        this.sprite = PIXI.Sprite.from(index_1.app.loader.resources.bulletRight.url);
-        this.sprite.x = ownerX;
+        const bullet = (origin === BulletType_1.BulletOrigin.player ? "bulletRight" : "bulletLeft");
+        this.sprite = PIXI.Sprite.from(index_1.app.loader.resources[(origin === BulletType_1.BulletOrigin.player) ? "bulletRight" : "bulletLeft"].url);
+        this.sprite.x = ownerX - 80;
         this.sprite.y = ownerY;
         this.sprite.anchor.set(0.5);
         this.origin = origin;
-        this.movementSpeed = ((origin === BulletType_1.BulletOrigin.player) ? 20 : -20);
+        this.movementSpeed = ((origin === BulletType_1.BulletOrigin.player) ? 20 : -10);
         Bullet.bullets.push(this);
         index_1.app.stage.addChild(this.sprite);
     }
     ;
     set x(value) {
         this.sprite.x = value;
-        if (value > index_1.app.view.width - this.sprite.width / 2) {
+        if ((value > index_1.app.view.width - this.sprite.width / 2) || (value < 0)) {
             this.removeBullet();
             // Bullet.bullets.filter(bullet => bullet.x === this.sprite.x);
             // Bullet.bullets.splice(Bullet.bullets.findIndex(bullet => bullet.x === this.sprite.x), 1);
@@ -284,6 +285,14 @@ function gameLoop() {
         setTimeout(() => keys["32"] = false, 10);
     }
     ;
+    Enemy_1.Enemy.enemies.forEach(enemy => {
+        const chance = Math.random() * 100;
+        console.log(chance);
+        if (chance < 1) {
+            enemy.fire();
+        }
+        ;
+    });
     Enemy_1.Enemy.enemies.forEach(enemy => enemy.x -= enemy.movementSpeed);
     Enemy_1.Enemy.enemies.forEach((enemy, index) => {
         if (collision(enemy, PLAYER)) {
@@ -309,17 +318,23 @@ function gameLoop() {
     });
     livesInfo.innerHTML = 'Lives: ' + JSON.stringify(globalLivesLeft);
     scoreInfo.innerHTML = 'Score: ' + JSON.stringify(score);
-    bulletsInfo.innerHTML = 'Bullets: ' + Bullet_1.Bullet.bullets.map(bullet => {
+    bulletsInfo.innerHTML = 'Bullets: ' + Bullet_1.Bullet.bullets.map((bullet, index) => {
+        if (index > 6) {
+            return '...';
+        }
         return JSON.stringify({
             X: bullet.x,
-            Y: bullet.y
+            Y: Math.round(bullet.y)
         });
     });
     if (enemiesInfo) {
-        enemiesInfo.innerHTML = 'Enemies: ' + Enemy_1.Enemy.enemies.map(enemy => {
+        enemiesInfo.innerHTML = 'Enemies: ' + Enemy_1.Enemy.enemies.map((enemy, index) => {
+            if (index > 6) {
+                return '...';
+            }
             return JSON.stringify({
                 X: enemy.x,
-                Y: enemy.y
+                Y: Math.round(enemy.y)
             });
         });
     }

@@ -15,7 +15,7 @@ export class Enemy {
         this.sprite.anchor.set(0.5);
         Enemy.generatedEnemies++;
         Enemy.enemies.push(this);
-
+        
         app.stage.addChild(this.sprite);
     };
 
