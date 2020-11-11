@@ -8,7 +8,7 @@ class Enemy {
         this._movementSpeed = 2;
         this.sprite = PIXI.Sprite.from(index_1.app.loader.resources.enemyLeft.url);
         this.sprite.x = index_1.app.view.width - this.sprite.width / 2;
-        this.sprite.y = index_1.app.view.height / 2;
+        this.sprite.y = Math.random() * index_1.app.view.height; //app.view.height / 2;
         this.sprite.anchor.set(0.5);
         Enemy.generatedEnemies++;
         Enemy.enemies.push(this);
@@ -17,18 +17,36 @@ class Enemy {
     ;
     set x(value) {
         this.sprite.x = value;
+        if (value < this.sprite.width / 2) {
+            this.removeEnemy();
+            // Enemy.enemies.splice(Enemy.enemies.findIndex(enemy => enemy.x === this.sprite.x), 1);
+        }
+        ;
     }
+    ;
     get x() {
         return this.sprite.x;
     }
+    ;
     set y(value) {
         this.sprite.y = value;
     }
+    ;
     get y() {
         return this.sprite.y;
     }
+    ;
     get movementSpeed() {
         return this._movementSpeed;
+    }
+    ;
+    getBounds() {
+        return this.sprite.getBounds();
+    }
+    ;
+    removeEnemy() {
+        index_1.app.stage.removeChild(this.sprite);
+        Enemy.enemies.splice(Enemy.enemies.findIndex(enemy => enemy.x === this.sprite.x), 1);
     }
     ;
 }
@@ -37,11 +55,68 @@ Enemy.generatedEnemies = 0;
 Enemy.enemies = [];
 ;
 
-},{"../../index":3}],2:[function(require,module,exports){
+},{"../../index":4}],2:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.Bullet = void 0;
+const index_1 = require("../../index");
+class Bullet {
+    constructor(ownerX, ownerY) {
+        this._movementSpeed = 20;
+        this.sprite = PIXI.Sprite.from(index_1.app.loader.resources.bulletRight.url);
+        this.sprite.x = ownerX;
+        this.sprite.y = ownerY;
+        this.sprite.anchor.set(0.5);
+        Bullet.bullets.push(this);
+        index_1.app.stage.addChild(this.sprite);
+    }
+    ;
+    set x(value) {
+        this.sprite.x = value;
+        if (value > index_1.app.view.width - this.sprite.width / 2) {
+            this.removeBullet();
+            // Bullet.bullets.filter(bullet => bullet.x === this.sprite.x);
+            // Bullet.bullets.splice(Bullet.bullets.findIndex(bullet => bullet.x === this.sprite.x), 1);
+        }
+        ;
+    }
+    ;
+    get x() {
+        return this.sprite.x;
+    }
+    ;
+    set y(value) {
+        this.sprite.y = value;
+    }
+    ;
+    get y() {
+        return this.sprite.y;
+    }
+    ;
+    get movementSpeed() {
+        return this._movementSpeed;
+    }
+    ;
+    getBounds() {
+        return this.sprite.getBounds();
+    }
+    ;
+    removeBullet() {
+        index_1.app.stage.removeChild(this.sprite);
+        Bullet.bullets.splice(Bullet.bullets.findIndex(bullet => bullet.x === this.sprite.x), 1);
+    }
+    ;
+}
+exports.Bullet = Bullet;
+Bullet.bullets = [];
+;
+
+},{"../../index":4}],3:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.PlayerShip = void 0;
 const index_1 = require("../../index");
+const Bullet_1 = require("../Other/Bullet");
 class PlayerShip {
     constructor() {
         this._livesLeft = 3;
@@ -89,52 +164,57 @@ class PlayerShip {
         this._livesLeft = value;
     }
     ;
-    collidesWith(otherSprite) {
-        let ab = this.sprite.getBounds();
-        let bb = otherSprite.getBounds();
-        return !(ab.x > bb.x + bb.width ||
-            ab.x + ab.width < bb.x ||
-            ab.y + ab.height < bb.y ||
-            ab.y > bb.y + bb.height);
+    getBounds() {
+        return this.sprite.getBounds();
     }
+    ;
+    fire() {
+        return new Bullet_1.Bullet(this.x, this.y);
+    }
+    ;
 }
 exports.PlayerShip = PlayerShip;
 PlayerShip.shipsCreated = 0;
 ;
 
-},{"../../index":3}],3:[function(require,module,exports){
+},{"../../index":4,"../Other/Bullet":2}],4:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.app = void 0;
 // import * as PIXI from 'pixi.js';
 const PlayerShip_1 = require("./Models/Player/PlayerShip");
 const Enemy_1 = require("./Models/Enemy/Enemy");
-let score = 42;
-let distanceTraveled = 42;
+const Bullet_1 = require("./Models/Other/Bullet");
+let score = 0;
+let distanceTraveled = 0;
 let globalLivesLeft = 0;
 const livesInfo = document.querySelector("#lives");
 const scoreInfo = document.querySelector("#score");
+const bulletsInfo = document.querySelector("#bullets");
 const distanceTraveledInfo = document.querySelector("#distanceTraveled");
 const playground = document.querySelector("#playground");
-const keysInfo = document.querySelector("#keys");
+// const keysInfo: any = document.querySelector("#keys");
+const enemiesInfo = document.querySelector("#enemies");
 const keys = {};
 const stage = new PIXI.Container();
 let PLAYER;
-// console.log(PLAYER);
-// function collision(a: Enemy, b: PlayerShip) {
-//     const aBox = a.getBounds();
-//     const bBox = b.getBounds();
-//     if (aBox.x + aBox.width > bBox.x
-//         && aBox.x < bBox.x + bBox.width
-//         && aBox.y + aBox.height > bBox.y
-//         && aBox.y < bBox.y + bBox.height) {
-//         // console.log('aBox : ' + JSON.stringify(aBox));
-//         // console.log('bBox : ' + JSON.stringify(bBox));
-//         return true;
-//     } else {
-//         return false;
-//     }
-// };
+function collision(a, b) {
+    const aBox = a.getBounds();
+    const bBox = b.getBounds();
+    // console.log('abox :', aBox);
+    if (aBox.x + aBox.width > bBox.x
+        && aBox.x < bBox.x + bBox.width
+        && aBox.y + aBox.height > bBox.y
+        && aBox.y < bBox.y + bBox.height) {
+        // console.log('aBox : ' + JSON.stringify(aBox));
+        // console.log('bBox : ' + JSON.stringify(bBox));
+        return true;
+    }
+    else {
+        return false;
+    }
+}
+;
 const showProgress = (e) => {
     console.log(e.progress);
 };
@@ -142,9 +222,10 @@ const doneLoading = () => {
     PLAYER = new PlayerShip_1.PlayerShip();
     globalLivesLeft = PLAYER.livesLeft;
     // console.log(Enemy.enemies);
-    const ENEMY = new Enemy_1.Enemy();
+    // const ENEMY = new Enemy();
+    setInterval(() => new Enemy_1.Enemy(), 700);
     // console.log(Enemy.enemies);
-    livesInfo.innerHTML = 'Lives: ' + JSON.stringify(globalLivesLeft);
+    // livesInfo.innerHTML = 'Lives: ' + JSON.stringify(globalLivesLeft);
     exports.app.ticker.add(gameLoop);
 };
 function gameLoop() {
@@ -175,27 +256,60 @@ function gameLoop() {
     }
     ;
     if (keys["32"]) { // D - RIGHT
-        PLAYER.x += PLAYER.movementSpeed;
+        PLAYER.fire();
+        setTimeout(() => keys["32"] = false, 10);
     }
     ;
     Enemy_1.Enemy.enemies.forEach(enemy => enemy.x -= enemy.movementSpeed);
-    // Enemy.enemies.forEach(enemy => {
-    //     if (collision(enemy, PLAYER)) {
-    //         PLAYER.livesLeft--;
-    //         console.log('collision');
-    //     };
-    // });
+    Enemy_1.Enemy.enemies.forEach((enemy, index) => {
+        if (collision(enemy, PLAYER)) {
+            globalLivesLeft--;
+            console.log('collision');
+            // app.stage.removeChild(enemy); // THIS DOESN'T WORK!!!???
+            enemy.removeEnemy();
+        }
+        ;
+    });
+    Bullet_1.Bullet.bullets.forEach((bullet) => bullet.x += bullet.movementSpeed);
+    Bullet_1.Bullet.bullets.forEach((bullet, bulletIndex) => {
+        Enemy_1.Enemy.enemies.forEach((enemy, enemyIndex) => {
+            if (collision(enemy, bullet)) {
+                // Bullet.bullets.splice(bulletIndex, 1);
+                bullet.removeBullet();
+                // Enemy.enemies.splice(enemyIndex, 1);
+                enemy.removeEnemy();
+                score++;
+            }
+            ;
+        });
+    });
+    livesInfo.innerHTML = 'Lives: ' + JSON.stringify(globalLivesLeft);
+    scoreInfo.innerHTML = 'Score: ' + JSON.stringify(score);
+    bulletsInfo.innerHTML = 'Bullets: ' + Bullet_1.Bullet.bullets.map(bullet => {
+        return JSON.stringify({
+            X: bullet.x,
+            Y: bullet.y
+        });
+    });
+    if (enemiesInfo) {
+        enemiesInfo.innerHTML = 'Enemies: ' + Enemy_1.Enemy.enemies.map(enemy => {
+            return JSON.stringify({
+                X: enemy.x,
+                Y: enemy.y
+            });
+        });
+    }
 }
 const reportError = (e) => {
     console.log('ERROR : ' + e.message);
 };
 const keysDown = (e) => {
     keys[e.keyCode] = true;
-    keysInfo.innerHTML = 'Keys :' + JSON.stringify(keys);
+    // keysInfo.innerHTML = 'Keys :' + JSON.stringify(keys);
 };
 const keysUp = (e) => {
     keys[e.keyCode] = false;
-    keysInfo.innerHTML = 'Keys :' + JSON.stringify(keys);
+    // keysInfo.innerHTML = 'Keys :' + JSON.stringify(keys);
 };
 exports.app = new PIXI.Application({
     width: 1050,
@@ -203,7 +317,6 @@ exports.app = new PIXI.Application({
     backgroundColor: 0xAAFFFF,
 });
 document.body.appendChild(exports.app.view);
-scoreInfo.innerHTML = 'Score: ' + JSON.stringify(score);
 distanceTraveledInfo.innerHTML = 'Distance traveled: ' + JSON.stringify(distanceTraveled);
 exports.app.loader.baseUrl = "../src/images";
 exports.app.loader
@@ -221,8 +334,8 @@ exports.app.loader.load();
 exports.app.stage.interactive = true;
 document.addEventListener("keydown", keysDown);
 document.addEventListener("keyup", keysUp);
-keysInfo.innerHTML = JSON.stringify(keys);
-// document.body.addEventListener("pointerdown", fireBullet);
+// keysInfo.innerHTML = JSON.stringify(keys);
+document.body.addEventListener("pointerdown", () => PLAYER.fire());
 // const app = PIXI.autoDetectRenderer(222, 222, { backgroundColor: 0xa1c2c4 })
 // console.log(PIXI);
 // const renderer = PIXI.autoDetectRenderer(222, 222, { backgroundColor: 0xa1c2c4 });
@@ -232,4 +345,4 @@ keysInfo.innerHTML = JSON.stringify(keys);
 // stage.hitArea = new PIXI.Rectangle(0, 0, 1000, 1000);
 // renderer.render(stage);
 
-},{"./Models/Enemy/Enemy":1,"./Models/Player/PlayerShip":2}]},{},[3]);
+},{"./Models/Enemy/Enemy":1,"./Models/Other/Bullet":2,"./Models/Player/PlayerShip":3}]},{},[4]);

@@ -9,7 +9,7 @@ export class Enemy {
     public constructor() {
         this.sprite = PIXI.Sprite.from(app.loader.resources.enemyLeft.url);
         this.sprite.x = app.view.width - this.sprite.width / 2;
-        this.sprite.y = app.view.height / 2;
+        this.sprite.y = Math.random() * app.view.height; //app.view.height / 2;
         this.sprite.anchor.set(0.5);
         Enemy.generatedEnemies++;
         Enemy.enemies.push(this);
@@ -18,54 +18,32 @@ export class Enemy {
     };
 
     public set x(value: number) {
-    this.sprite.x = value;
-  }
-  public get x(): number {
-      return this.sprite.x;
-  }
-  public set y(value: number) {
-    this.sprite.y = value;
-  }
-  public get y(): number {
-      return this.sprite.y;
-  }
+        this.sprite.x = value;
+        if (value < this.sprite.width / 2) {
+            this.removeEnemy();
+            // Enemy.enemies.splice(Enemy.enemies.findIndex(enemy => enemy.x === this.sprite.x), 1);
+        };
+    };
+    public get x(): number {
+        return this.sprite.x;
+    };
+    public set y(value: number) {
+        this.sprite.y = value;
+    };
+    public get y(): number {
+        return this.sprite.y;
+    };
     public get movementSpeed(): number {
         return this._movementSpeed;
     };
 
+    public getBounds(): any {
+        return this.sprite.getBounds();
+    };
 
-    //   private collidesWith(otherSprite: PIXI.Sprite) {
-    //     let ab = this.sprite.getBounds();
-    //     let bb = otherSprite.getBounds();
-    //     return !(
-    //       ab.x > bb.x + bb.width ||
-    //       ab.x + ab.width < bb.x ||
-    //       ab.y + ab.height < bb.y ||
-    //       ab.y > bb.y + bb.height
-    //     );
-    //   }
-
-    //   public Update(delta: number, activeEntities: Array<WorldObject>) {
-    //     if (this.sprite.y >= GameApp.GroundPosition) {
-    //       this.sprite.y = GameApp.GroundPosition;
-    //       this.verticalSpeed = 0;
-    //       this.airborne = false;
-    //     }
-
-    //     if (this.airborne) {
-    //       this.verticalSpeed += delta / 3;
-    //     }
-
-    //     if (GameApp.PressedSpace && !this.airborne) {
-    //       this.airborne = true;
-    //       this.verticalSpeed = -5;
-    //     }
-    //     this.sprite.y += this.verticalSpeed * delta;
-
-    //     for (const currentEntity of GameApp.ActiveEntities) {
-    //       if (currentEntity.solid && this.collidesWith(currentEntity.sprite)) {
-    //         GameApp.GameOver = true;
-    //       }
-    //     }
-    //   }
+    public removeEnemy(): void {
+        app.stage.removeChild(this.sprite);
+        Enemy.enemies.splice(Enemy.enemies.findIndex(enemy => enemy.x === this.sprite.x), 1);
+    };
+   
 };

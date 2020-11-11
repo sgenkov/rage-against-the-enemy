@@ -1,35 +1,39 @@
 // import * as PIXI from 'pixi.js';
 import { PlayerShip } from './Models/Player/PlayerShip';
 import { Enemy } from './Models/Enemy/Enemy';
+import { Bullet } from './Models/Other/Bullet';
+import { isJsxAttribute } from 'typescript';
 
-let score: number = 42;
-let distanceTraveled: number = 42;
+let score: number = 0;
+let distanceTraveled: number = 0;
 let globalLivesLeft: number = 0;
 const livesInfo: any = document.querySelector("#lives");
 const scoreInfo: any = document.querySelector("#score");
+const bulletsInfo: any = document.querySelector("#bullets");
 const distanceTraveledInfo: any = document.querySelector("#distanceTraveled");
 const playground: any = document.querySelector("#playground");
-const keysInfo: any = document.querySelector("#keys");
+// const keysInfo: any = document.querySelector("#keys");
+const enemiesInfo = document.querySelector("#enemies");
 const keys: any = {};
 const stage = new PIXI.Container();
 let PLAYER: PlayerShip;
 
-// console.log(PLAYER);
-// function collision(a: Enemy, b: PlayerShip) {
-//     const aBox = a.getBounds();
-//     const bBox = b.getBounds();
+function collision(a: any, b: any) { //function collision(a: Enemy, b: PlayerShip) { // AD SOME INTERFACES FOR Enemy and Player calsses
+    const aBox = a.getBounds();
+    const bBox = b.getBounds();
+    // console.log('abox :', aBox);
 
-//     if (aBox.x + aBox.width > bBox.x
-//         && aBox.x < bBox.x + bBox.width
-//         && aBox.y + aBox.height > bBox.y
-//         && aBox.y < bBox.y + bBox.height) {
-//         // console.log('aBox : ' + JSON.stringify(aBox));
-//         // console.log('bBox : ' + JSON.stringify(bBox));
-//         return true;
-//     } else {
-//         return false;
-//     }
-// };
+    if (aBox.x + aBox.width > bBox.x
+        && aBox.x < bBox.x + bBox.width
+        && aBox.y + aBox.height > bBox.y
+        && aBox.y < bBox.y + bBox.height) {
+        // console.log('aBox : ' + JSON.stringify(aBox));
+        // console.log('bBox : ' + JSON.stringify(bBox));
+        return true;
+    } else {
+        return false;
+    }
+};
 
 const showProgress = (e: any) => {
     console.log(e.progress);
@@ -40,12 +44,16 @@ const doneLoading = () => {
 
     globalLivesLeft = PLAYER.livesLeft;
     // console.log(Enemy.enemies);
-    const ENEMY = new Enemy();
+    // const ENEMY = new Enemy();
+    setInterval(()=> new Enemy(), 700);
     // console.log(Enemy.enemies);
-    livesInfo.innerHTML = 'Lives: ' + JSON.stringify(globalLivesLeft);
+    // livesInfo.innerHTML = 'Lives: ' + JSON.stringify(globalLivesLeft);
     app.ticker.add(gameLoop);
 };
+
+
 function gameLoop() {
+    
     // console.log(Enemy.enemies);
     // let accel;
     if (keys["87"] && PLAYER.y > 50) { // W - UP
@@ -60,7 +68,7 @@ function gameLoop() {
         //     }
         // }, 50)
 
-    }; 
+    };
     if (keys["83"] && PLAYER.y < app.view.height - 50) { // S - DOWN
         PLAYER.y += PLAYER.movementSpeed;
     };
@@ -71,16 +79,50 @@ function gameLoop() {
         PLAYER.x += PLAYER.movementSpeed;
     };
     if (keys["32"]) { // D - RIGHT
-        PLAYER.x += PLAYER.movementSpeed;
+        PLAYER.fire();
+        setTimeout(() => keys["32"] = false, 10);
     };
-
+    
     Enemy.enemies.forEach(enemy => enemy.x -= enemy.movementSpeed);
-    // Enemy.enemies.forEach(enemy => {
-    //     if (collision(enemy, PLAYER)) {
-    //         PLAYER.livesLeft--;
-    //         console.log('collision');
-    //     };
-    // });
+    
+    Enemy.enemies.forEach((enemy, index) => {
+        if (collision(enemy, PLAYER)) {
+            globalLivesLeft--;
+            console.log('collision');
+            // app.stage.removeChild(enemy); // THIS DOESN'T WORK!!!???
+            enemy.removeEnemy();
+        };
+    });
+    Bullet.bullets.forEach((bullet) => bullet.x += bullet.movementSpeed);
+    Bullet.bullets.forEach((bullet, bulletIndex) => {
+        Enemy.enemies.forEach((enemy, enemyIndex) => {
+            if (collision(enemy, bullet)) {
+                // Bullet.bullets.splice(bulletIndex, 1);
+                bullet.removeBullet();
+                // Enemy.enemies.splice(enemyIndex, 1);
+                enemy.removeEnemy();
+                score++;
+            };
+        })
+    });
+
+    livesInfo.innerHTML = 'Lives: ' + JSON.stringify(globalLivesLeft);
+    scoreInfo.innerHTML = 'Score: ' + JSON.stringify(score);
+    bulletsInfo.innerHTML = 'Bullets: ' + Bullet.bullets.map(bullet => { // delete this row on production
+        return JSON.stringify({
+            X: bullet.x,
+            Y: bullet.y
+        })
+    });
+    
+    if(enemiesInfo) {
+        enemiesInfo.innerHTML = 'Enemies: ' + Enemy.enemies.map(enemy => {
+            return JSON.stringify({
+                X: enemy.x,
+                Y: enemy.y
+            })
+        });
+    }
 
 }
 
@@ -90,12 +132,12 @@ const reportError = (e: any) => {
 
 const keysDown = (e: any) => {
     keys[e.keyCode] = true;
-    keysInfo.innerHTML = 'Keys :' + JSON.stringify(keys);
+    // keysInfo.innerHTML = 'Keys :' + JSON.stringify(keys);
 };
 
 const keysUp = (e: any) => {
     keys[e.keyCode] = false;
-    keysInfo.innerHTML = 'Keys :' + JSON.stringify(keys);
+    // keysInfo.innerHTML = 'Keys :' + JSON.stringify(keys);
 };
 
 export const app = new PIXI.Application({
@@ -105,7 +147,7 @@ export const app = new PIXI.Application({
 })
 
 document.body.appendChild(app.view);
-scoreInfo.innerHTML = 'Score: ' + JSON.stringify(score);
+
 
 distanceTraveledInfo.innerHTML = 'Distance traveled: ' + JSON.stringify(distanceTraveled);
 
@@ -127,8 +169,8 @@ app.loader.load();
 app.stage.interactive = true;
 document.addEventListener("keydown", keysDown);
 document.addEventListener("keyup", keysUp);
-keysInfo.innerHTML = JSON.stringify(keys);
-    // document.body.addEventListener("pointerdown", fireBullet);
+// keysInfo.innerHTML = JSON.stringify(keys);
+    document.body.addEventListener("pointerdown", () =>PLAYER.fire());
 
 
 
