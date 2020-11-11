@@ -61,7 +61,7 @@ export class PlayerShip {
     };
 
     public fire(): Bullet {
-        return new Bullet(this.x, this.y, BulletOrigin.player );
+        return new Bullet(this.x + this.sprite.width / 2, this.y, BulletOrigin.player );
     };
 
 

@@ -2,11 +2,10 @@
 import { PlayerShip } from './Models/Player/PlayerShip';
 import { Enemy } from './Models/Enemy/Enemy';
 import { Bullet } from './Models/Other/Bullet';
-import { isJsxAttribute } from 'typescript';
 
 let score: number = 0;
 let distanceTraveled: number = 0;
-let globalLivesLeft: number = 0;
+// let globalLivesLeft: number = 0;
 const livesInfo: any = document.querySelector("#lives");
 const scoreInfo: any = document.querySelector("#score");
 const bulletsInfo: any = document.querySelector("#bullets");
@@ -21,14 +20,15 @@ let PLAYER: PlayerShip;
 function collision(a: any, b: any) { //function collision(a: Enemy, b: PlayerShip) { // AD SOME INTERFACES FOR Enemy and Player calsses
     const aBox = a.getBounds();
     const bBox = b.getBounds();
-    // console.log('abox :', aBox);
+    //  console.log('abox :', typeof a);
+    //  console.log('bbox :', typeof b);
 
     if (aBox.x + aBox.width > bBox.x
         && aBox.x < bBox.x + bBox.width
         && aBox.y + aBox.height > bBox.y
         && aBox.y < bBox.y + bBox.height) {
-        // console.log('aBox : ' + JSON.stringify(aBox));
-        // console.log('bBox : ' + JSON.stringify(bBox));
+        // console.log('aBox : ' + JSON.stringify(typeof aBox));
+        // console.log('bBox : ' + JSON.stringify(typeof bBox));
         return true;
     } else {
         return false;
@@ -42,18 +42,26 @@ const showProgress = (e: any) => {
 const doneLoading = () => {
     PLAYER = new PlayerShip();
 
-    globalLivesLeft = PLAYER.livesLeft;
+    // globalLivesLeft = PLAYER.livesLeft;
     // console.log(Enemy.enemies);
     // const ENEMY = new Enemy();
-    setInterval(()=> new Enemy(), 700);
+    setInterval(() => new Enemy(), 700);
     // console.log(Enemy.enemies);
     // livesInfo.innerHTML = 'Lives: ' + JSON.stringify(globalLivesLeft);
     app.ticker.add(gameLoop);
 };
 
-
+const reset = () => {
+    Enemy.enemies.forEach(enemy => enemy.removeEnemy());
+    Bullet.bullets.forEach(bullet => bullet.removeBullet());
+    PLAYER.livesLeft = 3;
+}
 function gameLoop() {
-    
+    if (PLAYER.livesLeft < 1) {
+        reset();
+     };
+ 
+    ++distanceTraveled;
     // console.log(Enemy.enemies);
     // let accel;
     if (keys["87"] && PLAYER.y > 50) { // W - UP
@@ -83,24 +91,27 @@ function gameLoop() {
         setTimeout(() => keys["32"] = false, 10);
     };
     Enemy.enemies.forEach(enemy => {
-        const chance: number = Math.random() * 100;
-        console.log(chance);
-        if (chance < 1) {
+        const chance: number = Math.random() * 1000;
+        if (chance < 5) {
             enemy.fire();
         };
     });
     Enemy.enemies.forEach(enemy => enemy.x -= enemy.movementSpeed);
-    
+
     Enemy.enemies.forEach((enemy, index) => {
         if (collision(enemy, PLAYER)) {
-            globalLivesLeft--;
-            console.log('collision');
+            PLAYER.livesLeft--;
+            // console.log('collision');
             // app.stage.removeChild(enemy); // THIS DOESN'T WORK!!!???
             enemy.removeEnemy();
         };
     });
     Bullet.bullets.forEach((bullet) => bullet.x += bullet.movementSpeed);
     Bullet.bullets.forEach((bullet, bulletIndex) => {
+        if (collision(bullet, PLAYER)) {
+            bullet.removeBullet();
+            PLAYER.livesLeft--;
+        };
         Enemy.enemies.forEach((enemy, enemyIndex) => {
             if (collision(enemy, bullet)) {
                 // Bullet.bullets.splice(bulletIndex, 1);
@@ -111,11 +122,13 @@ function gameLoop() {
             };
         })
     });
+    
 
-    livesInfo.innerHTML = 'Lives: ' + JSON.stringify(globalLivesLeft);
+    livesInfo.innerHTML = 'Lives: ' + JSON.stringify(PLAYER.livesLeft);
     scoreInfo.innerHTML = 'Score: ' + JSON.stringify(score);
+    distanceTraveledInfo.innerHTML = 'Distance traveled: ' + Math.ceil(distanceTraveled / 10);
     bulletsInfo.innerHTML = 'Bullets: ' + Bullet.bullets.map((bullet, index) => { // delete this row on production
-        if(index > 6) {
+        if (index > 6) {
             return '...';
         }
         return JSON.stringify({
@@ -123,10 +136,10 @@ function gameLoop() {
             Y: Math.round(bullet.y)
         })
     });
-    
-    if(enemiesInfo) {
+
+    if (enemiesInfo) {
         enemiesInfo.innerHTML = 'Enemies: ' + Enemy.enemies.map((enemy, index) => {
-            if(index > 6) {
+            if (index > 6) {
                 return '...';
             }
             return JSON.stringify({
@@ -136,7 +149,8 @@ function gameLoop() {
         });
     }
 
-}
+    
+};
 
 const reportError = (e: any) => {
     console.log('ERROR : ' + e.message);
@@ -183,7 +197,7 @@ app.stage.interactive = true;
 document.addEventListener("keydown", keysDown);
 document.addEventListener("keyup", keysUp);
 // keysInfo.innerHTML = JSON.stringify(keys);
-    document.body.addEventListener("pointerdown", () => PLAYER.fire());
+document.body.addEventListener("pointerdown", () => PLAYER.fire());
 
 
 

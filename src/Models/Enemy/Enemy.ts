@@ -48,7 +48,7 @@ export class Enemy {
         Enemy.enemies.splice(Enemy.enemies.findIndex(enemy => enemy.x === this.sprite.x), 1);
     };
     public fire(): Bullet {
-        return new Bullet(this.x, this.y, BulletOrigin.enemy);
+        return new Bullet((this.x - this.sprite.width / 2 - 8), this.y, BulletOrigin.enemy);
     };
    
 };

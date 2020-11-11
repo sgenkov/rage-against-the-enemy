@@ -52,7 +52,7 @@ class Enemy {
     }
     ;
     fire() {
-        return new Bullet_1.Bullet(this.x, this.y, BulletType_1.BulletOrigin.enemy);
+        return new Bullet_1.Bullet((this.x - this.sprite.width / 2 - 8), this.y, BulletType_1.BulletOrigin.enemy);
     }
     ;
 }
@@ -71,7 +71,7 @@ class Bullet {
     constructor(ownerX, ownerY, origin) {
         const bullet = (origin === BulletType_1.BulletOrigin.player ? "bulletRight" : "bulletLeft");
         this.sprite = PIXI.Sprite.from(index_1.app.loader.resources[(origin === BulletType_1.BulletOrigin.player) ? "bulletRight" : "bulletLeft"].url);
-        this.sprite.x = ownerX - 80;
+        this.sprite.x = ownerX;
         this.sprite.y = ownerY;
         this.sprite.anchor.set(0.5);
         this.origin = origin;
@@ -183,7 +183,7 @@ class PlayerShip {
     }
     ;
     fire() {
-        return new Bullet_1.Bullet(this.x, this.y, BulletType_1.BulletOrigin.player);
+        return new Bullet_1.Bullet(this.x + this.sprite.width / 2, this.y, BulletType_1.BulletOrigin.player);
     }
     ;
 }
@@ -212,7 +212,7 @@ const Enemy_1 = require("./Models/Enemy/Enemy");
 const Bullet_1 = require("./Models/Other/Bullet");
 let score = 0;
 let distanceTraveled = 0;
-let globalLivesLeft = 0;
+// let globalLivesLeft: number = 0;
 const livesInfo = document.querySelector("#lives");
 const scoreInfo = document.querySelector("#score");
 const bulletsInfo = document.querySelector("#bullets");
@@ -226,13 +226,14 @@ let PLAYER;
 function collision(a, b) {
     const aBox = a.getBounds();
     const bBox = b.getBounds();
-    // console.log('abox :', aBox);
+    //  console.log('abox :', typeof a);
+    //  console.log('bbox :', typeof b);
     if (aBox.x + aBox.width > bBox.x
         && aBox.x < bBox.x + bBox.width
         && aBox.y + aBox.height > bBox.y
         && aBox.y < bBox.y + bBox.height) {
-        // console.log('aBox : ' + JSON.stringify(aBox));
-        // console.log('bBox : ' + JSON.stringify(bBox));
+        // console.log('aBox : ' + JSON.stringify(typeof aBox));
+        // console.log('bBox : ' + JSON.stringify(typeof bBox));
         return true;
     }
     else {
@@ -245,7 +246,7 @@ const showProgress = (e) => {
 };
 const doneLoading = () => {
     PLAYER = new PlayerShip_1.PlayerShip();
-    globalLivesLeft = PLAYER.livesLeft;
+    // globalLivesLeft = PLAYER.livesLeft;
     // console.log(Enemy.enemies);
     // const ENEMY = new Enemy();
     setInterval(() => new Enemy_1.Enemy(), 700);
@@ -253,7 +254,17 @@ const doneLoading = () => {
     // livesInfo.innerHTML = 'Lives: ' + JSON.stringify(globalLivesLeft);
     exports.app.ticker.add(gameLoop);
 };
+const reset = () => {
+    Enemy_1.Enemy.enemies.forEach(enemy => enemy.removeEnemy());
+    Bullet_1.Bullet.bullets.forEach(bullet => bullet.removeBullet());
+    PLAYER.livesLeft = 3;
+};
 function gameLoop() {
+    if (PLAYER.livesLeft < 1) {
+        reset();
+    }
+    ;
+    ++distanceTraveled;
     // console.log(Enemy.enemies);
     // let accel;
     if (keys["87"] && PLAYER.y > 50) { // W - UP
@@ -286,9 +297,8 @@ function gameLoop() {
     }
     ;
     Enemy_1.Enemy.enemies.forEach(enemy => {
-        const chance = Math.random() * 100;
-        console.log(chance);
-        if (chance < 1) {
+        const chance = Math.random() * 1000;
+        if (chance < 5) {
             enemy.fire();
         }
         ;
@@ -296,8 +306,8 @@ function gameLoop() {
     Enemy_1.Enemy.enemies.forEach(enemy => enemy.x -= enemy.movementSpeed);
     Enemy_1.Enemy.enemies.forEach((enemy, index) => {
         if (collision(enemy, PLAYER)) {
-            globalLivesLeft--;
-            console.log('collision');
+            PLAYER.livesLeft--;
+            // console.log('collision');
             // app.stage.removeChild(enemy); // THIS DOESN'T WORK!!!???
             enemy.removeEnemy();
         }
@@ -305,6 +315,11 @@ function gameLoop() {
     });
     Bullet_1.Bullet.bullets.forEach((bullet) => bullet.x += bullet.movementSpeed);
     Bullet_1.Bullet.bullets.forEach((bullet, bulletIndex) => {
+        if (collision(bullet, PLAYER)) {
+            bullet.removeBullet();
+            PLAYER.livesLeft--;
+        }
+        ;
         Enemy_1.Enemy.enemies.forEach((enemy, enemyIndex) => {
             if (collision(enemy, bullet)) {
                 // Bullet.bullets.splice(bulletIndex, 1);
@@ -316,8 +331,9 @@ function gameLoop() {
             ;
         });
     });
-    livesInfo.innerHTML = 'Lives: ' + JSON.stringify(globalLivesLeft);
+    livesInfo.innerHTML = 'Lives: ' + JSON.stringify(PLAYER.livesLeft);
     scoreInfo.innerHTML = 'Score: ' + JSON.stringify(score);
+    distanceTraveledInfo.innerHTML = 'Distance traveled: ' + Math.ceil(distanceTraveled / 10);
     bulletsInfo.innerHTML = 'Bullets: ' + Bullet_1.Bullet.bullets.map((bullet, index) => {
         if (index > 6) {
             return '...';
@@ -339,6 +355,7 @@ function gameLoop() {
         });
     }
 }
+;
 const reportError = (e) => {
     console.log('ERROR : ' + e.message);
 };
