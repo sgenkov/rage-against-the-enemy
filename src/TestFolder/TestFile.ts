@@ -1,1 +1,0 @@
-export const exportedValue: number = 23;

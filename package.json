@@ -4,7 +4,7 @@
   "description": "PixiJS Experience",
   "main": "index.ts",
   "scripts": {
-    "start": "babel src --out-dir dist",
+    "start": "live-server",
     "lint": "gts lint",
     "clean": "gts clean",
     "compile": "browserify src/index.ts -p [ tsify --noImplicitAny] > bundle.js"
@@ -21,6 +21,7 @@
   "homepage": "https://github.com/sgenkov/rage-against-the-enemy#readme",
   "dependencies": {
     "@types/pixi.js": "^4.5.3",
+    "pixi.js": "^5.3.3",
     "tsify": "^5.0.2"
   },
   "devDependencies": {
