@@ -26,10 +26,10 @@ let bgMiddle: any;
 let bgFront: any;
 let bgX = 0;
 let bgSpeed = 1;
-function createBg(texture: any, width: number = 800, height: number = 600) {
+function createBg(texture: any) {
     console.log('CreateBg called');
-    
-    let tiling = new PIXI.extras.TilingSprite(texture, width, height);
+
+    let tiling = new PIXI.extras.TilingSprite(texture, 2050, 1600);
     tiling.position.set(0, 0);
     app.stage.addChild(tiling);
 
@@ -43,7 +43,7 @@ function updateBg() {
     bgFront.position.x = bgX;
     bgMiddle.position.x = bgX / 2;
     bgBack.position.x = bgX / 4;
-    
+
 }
 
 
@@ -75,9 +75,9 @@ const showProgress = (e: any) => {
 
 const doneLoading = () => {
     // PARALLAX ==================================================================================V
-    bgBack = createBg(app.loader.resources["farground"].texture, app.view.width, app.view.height);
-    bgMiddle = createBg(app.loader.resources["midground"].texture, app.view.width, app.view.height);
-    bgFront = createBg(app.loader.resources["foreground"].texture, app.view.width, app.view.height);
+    bgBack = createBg(app.loader.resources["farground"].texture);
+    bgMiddle = createBg(app.loader.resources["midground"].texture);
+    bgFront = createBg(app.loader.resources["foreground"].texture);
 
 
     // PARALLAX ==================================================================================^

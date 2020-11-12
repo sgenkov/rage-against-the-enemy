@@ -240,9 +240,9 @@ let bgMiddle;
 let bgFront;
 let bgX = 0;
 let bgSpeed = 1;
-function createBg(texture, width = 800, height = 600) {
+function createBg(texture) {
     console.log('CreateBg called');
-    let tiling = new PIXI.extras.TilingSprite(texture, width, height);
+    let tiling = new PIXI.extras.TilingSprite(texture, 2050, 1600);
     tiling.position.set(0, 0);
     exports.app.stage.addChild(tiling);
     return tiling;
@@ -280,9 +280,9 @@ const showProgress = (e) => {
 };
 const doneLoading = () => {
     // PARALLAX ==================================================================================V
-    bgBack = createBg(exports.app.loader.resources["farground"].texture, exports.app.view.width, exports.app.view.height);
-    bgMiddle = createBg(exports.app.loader.resources["midground"].texture, exports.app.view.width, exports.app.view.height);
-    bgFront = createBg(exports.app.loader.resources["foreground"].texture, exports.app.view.width, exports.app.view.height);
+    bgBack = createBg(exports.app.loader.resources["farground"].texture);
+    bgMiddle = createBg(exports.app.loader.resources["midground"].texture);
+    bgFront = createBg(exports.app.loader.resources["foreground"].texture);
     // PARALLAX ==================================================================================^
     PLAYER = new PlayerShip_1.PlayerShip();
     setInterval(() => new Enemy_1.Enemy(), 1200);
