@@ -217,6 +217,7 @@ var BulletOrigin;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.app = void 0;
 // import * as PIXI from 'pixi.js';
+// import PIXI from 'pixi.js';
 const PlayerShip_1 = require("./Models/Player/PlayerShip");
 const Enemy_1 = require("./Models/Enemy/Enemy");
 const Bullet_1 = require("./Models/Other/Bullet");
@@ -233,6 +234,29 @@ const hiScoreInfo = document.querySelector("#hiScore");
 hiScoreInfo && (hiScoreInfo.innerHTML = 'HiScore :' + 0);
 const keys = {};
 let PLAYER;
+// PARALLAX ==================================================================================V
+let bgBack;
+let bgMiddle;
+let bgFront;
+let bgX = 0;
+let bgSpeed = 1;
+function createBg(texture, width = 800, height = 600) {
+    console.log('CreateBg called');
+    let tiling = new PIXI.extras.TilingSprite(texture, width, height);
+    tiling.position.set(0, 0);
+    exports.app.stage.addChild(tiling);
+    return tiling;
+}
+;
+function updateBg() {
+    bgX = (bgX + bgSpeed);
+    console.log(bgFront.X);
+    bgX++;
+    bgFront.position.x = bgX;
+    bgMiddle.position.x = bgX / 2;
+    bgBack.position.x = bgX / 4;
+}
+// PARALLAX ==================================================================================^
 function collision(a, b) {
     const aBox = a.getBounds();
     const bBox = b.getBounds();
@@ -255,6 +279,11 @@ const showProgress = (e) => {
     console.log(e.progress);
 };
 const doneLoading = () => {
+    // PARALLAX ==================================================================================V
+    bgBack = createBg(exports.app.loader.resources["farground"].texture, exports.app.view.width, exports.app.view.height);
+    bgMiddle = createBg(exports.app.loader.resources["midground"].texture, exports.app.view.width, exports.app.view.height);
+    bgFront = createBg(exports.app.loader.resources["foreground"].texture, exports.app.view.width, exports.app.view.height);
+    // PARALLAX ==================================================================================^
     PLAYER = new PlayerShip_1.PlayerShip();
     setInterval(() => new Enemy_1.Enemy(), 1200);
     exports.app.ticker.add(gameLoop);
@@ -275,6 +304,9 @@ function gameLoop() {
     // if ( Math.ceil(distanceTraveled / 10 ) > 100) {
     //     Enemy.movementSpeed ++;
     // }
+    // PARALLAX ==================================================================================V
+    updateBg();
+    // PARALLAX ==================================================================================^
     if (PLAYER.livesLeft < 1) {
         reset();
     }
@@ -395,20 +427,15 @@ exports.app.loader
     .add("enemyLeft2", "Ships/plane_3_blue.png")
     .add("enemyLeft3", "Ships/plane_3_yellow.png")
     .add("bulletRight", "Bullets/bulletRight.png")
-    .add("bulletLeft", "Bullets/enemyBulletLeft.png");
-// .add("shipRight", "plane_3_green.png")
-// .add("shipLeft", "shipLeft.png")
-// .add("shipUp", "shipUp.png")
-// .add("shipDown", "shipDown.png")
-// .add("bulletRight", "bulletRight.png")
-// .add("player", "player.png")
-// .add("enemyLeft", "enemyLeft.png")
-// .add("bulletLeft", "enemyBulletLeft.png")
+    .add("bulletLeft", "Bullets/enemyBulletLeft.png")
+    .add("foreground", "Mountains/foreground_mountains.png")
+    .add("midground", "Mountains/midground_mountains.png")
+    .add("farground", "Mountains/farground_mountains.png");
 exports.app.loader.onProgress.add(showProgress);
 exports.app.loader.onComplete.add(doneLoading);
 exports.app.loader.onError.add(reportError);
 exports.app.loader.load();
-exports.app.stage.interactive = true;
+exports.app.stage.interactive = false;
 document.addEventListener("keydown", keysDown);
 document.addEventListener("keyup", keysUp);
 // keysInfo.innerHTML = JSON.stringify(keys);

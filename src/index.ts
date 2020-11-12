@@ -1,7 +1,10 @@
 // import * as PIXI from 'pixi.js';
+// import PIXI from 'pixi.js';
 import { PlayerShip } from './Models/Player/PlayerShip';
 import { Enemy } from './Models/Enemy/Enemy';
 import { Bullet } from './Models/Other/Bullet';
+import { Parallax } from './Parallax/Parallax';
+import { updateBindingElement } from 'typescript';
 
 let score: number = 0;
 let distanceTraveled: number = 0;
@@ -17,6 +20,37 @@ hiScoreInfo && (hiScoreInfo.innerHTML = 'HiScore :' + 0);
 const keys: any = {};
 let PLAYER: PlayerShip;
 
+// PARALLAX ==================================================================================V
+let bgBack: any;
+let bgMiddle: any;
+let bgFront: any;
+let bgX = 0;
+let bgSpeed = 1;
+function createBg(texture: any, width: number = 800, height: number = 600) {
+    console.log('CreateBg called');
+    
+    let tiling = new PIXI.extras.TilingSprite(texture, width, height);
+    tiling.position.set(0, 0);
+    app.stage.addChild(tiling);
+
+    return tiling;
+};
+
+function updateBg() {
+    bgX = (bgX + bgSpeed);
+    console.log(bgFront.X);
+    bgX++;
+    bgFront.position.x = bgX;
+    bgMiddle.position.x = bgX / 2;
+    bgBack.position.x = bgX / 4;
+    
+}
+
+
+
+
+
+// PARALLAX ==================================================================================^
 function collision(a: any, b: any) { //function collision(a: Enemy, b: PlayerShip) { // ADD SOME INTERFACE FOR Enemy and Player calsses
     const aBox = a.getBounds();
     const bBox = b.getBounds();
@@ -40,8 +74,17 @@ const showProgress = (e: any) => {
 };
 
 const doneLoading = () => {
+    // PARALLAX ==================================================================================V
+    bgBack = createBg(app.loader.resources["farground"].texture, app.view.width, app.view.height);
+    bgMiddle = createBg(app.loader.resources["midground"].texture, app.view.width, app.view.height);
+    bgFront = createBg(app.loader.resources["foreground"].texture, app.view.width, app.view.height);
+
+
+    // PARALLAX ==================================================================================^
     PLAYER = new PlayerShip();
     setInterval(() => new Enemy(), 1200);
+
+
     app.ticker.add(gameLoop);
 };
 
@@ -60,6 +103,12 @@ function gameLoop() {
     // if ( Math.ceil(distanceTraveled / 10 ) > 100) {
     //     Enemy.movementSpeed ++;
     // }
+
+    // PARALLAX ==================================================================================V
+    updateBg();
+
+    // PARALLAX ==================================================================================^
+
     if (PLAYER.livesLeft < 1) {
         reset();
     };
@@ -182,27 +231,22 @@ distanceTraveledInfo.innerHTML = 'Distance traveled: ' + JSON.stringify(distance
 
 app.loader.baseUrl = "../src/assets";
 app.loader
-.add("shipRight", "Ships/shipRight.png")
-.add("enemyLeft", "Ships/plane_3_red.png")
-.add("enemyLeft2", "Ships/plane_3_blue.png")
-.add("enemyLeft3", "Ships/plane_3_yellow.png")
-.add("bulletRight", "Bullets/bulletRight.png")
-.add("bulletLeft", "Bullets/enemyBulletLeft.png")
-    // .add("shipRight", "plane_3_green.png")
-    // .add("shipLeft", "shipLeft.png")
-    // .add("shipUp", "shipUp.png")
-    // .add("shipDown", "shipDown.png")
-    // .add("bulletRight", "bulletRight.png")
-    // .add("player", "player.png")
-    // .add("enemyLeft", "enemyLeft.png")
-    // .add("bulletLeft", "enemyBulletLeft.png")
+    .add("shipRight", "Ships/shipRight.png")
+    .add("enemyLeft", "Ships/plane_3_red.png")
+    .add("enemyLeft2", "Ships/plane_3_blue.png")
+    .add("enemyLeft3", "Ships/plane_3_yellow.png")
+    .add("bulletRight", "Bullets/bulletRight.png")
+    .add("bulletLeft", "Bullets/enemyBulletLeft.png")
+    .add("foreground", "Mountains/foreground_mountains.png")
+    .add("midground", "Mountains/midground_mountains.png")
+    .add("farground", "Mountains/farground_mountains.png")
 
 app.loader.onProgress.add(showProgress);
 app.loader.onComplete.add(doneLoading);
 app.loader.onError.add(reportError);
 
 app.loader.load();
-app.stage.interactive = true;
+app.stage.interactive = false;
 document.addEventListener("keydown", keysDown);
 document.addEventListener("keyup", keysUp);
 // keysInfo.innerHTML = JSON.stringify(keys);
