@@ -17,7 +17,7 @@ hiScoreInfo && (hiScoreInfo.innerHTML = 'HiScore :' + 0);
 const keys: any = {};
 let PLAYER: PlayerShip;
 
-function collision(a: any, b: any) { //function collision(a: Enemy, b: PlayerShip) { // AD SOME INTERFACES FOR Enemy and Player calsses
+function collision(a: any, b: any) { //function collision(a: Enemy, b: PlayerShip) { // ADD SOME INTERFACE FOR Enemy and Player calsses
     const aBox = a.getBounds();
     const bBox = b.getBounds();
     //  console.log('abox :', typeof a);
@@ -67,7 +67,7 @@ function gameLoop() {
 
     ++distanceTraveled;
     // let accel;
-    if (keys["87"] && PLAYER.y > 50) { // W - UP
+    if (keys["87"] && PLAYER.y > 30) { // W - UP
 
         PLAYER.y -= PLAYER.movementSpeed;
         // let accel = setInterval(() => {
@@ -80,7 +80,7 @@ function gameLoop() {
         // }, 50)
 
     };
-    if (keys["83"] && PLAYER.y < app.view.height - 50) { // S - DOWN
+    if (keys["83"] && PLAYER.y < app.view.height - 30) { // S - DOWN
         PLAYER.y += PLAYER.movementSpeed;
     };
     if (keys["65"] && PLAYER.x > 50) { // A - LEFT

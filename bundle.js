@@ -281,7 +281,7 @@ function gameLoop() {
     ;
     ++distanceTraveled;
     // let accel;
-    if (keys["87"] && PLAYER.y > 50) { // W - UP
+    if (keys["87"] && PLAYER.y > 30) { // W - UP
         PLAYER.y -= PLAYER.movementSpeed;
         // let accel = setInterval(() => {
         //     if (PLAYER.y > 50) {
@@ -293,7 +293,7 @@ function gameLoop() {
         // }, 50)
     }
     ;
-    if (keys["83"] && PLAYER.y < exports.app.view.height - 50) { // S - DOWN
+    if (keys["83"] && PLAYER.y < exports.app.view.height - 30) { // S - DOWN
         PLAYER.y += PLAYER.movementSpeed;
     }
     ;
