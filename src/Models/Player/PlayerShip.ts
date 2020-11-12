@@ -12,6 +12,8 @@ export class PlayerShip {
         this.sprite = PIXI.Sprite.from(app.loader.resources.shipRight.url);
         // this.sprite = PIXI.Sprite.from('/src/images/shipRight.png'); 
         // this.printer(app.loader.resources);
+        this.sprite.scale.x = 0.1;
+        this.sprite.scale.y = 0.1;
         this.sprite.x = this.sprite.width / 2;
         this.sprite.y = app.view.height / 2;
         this.sprite.anchor.set(0.5);
@@ -61,7 +63,7 @@ export class PlayerShip {
     };
 
     public fire(): Bullet {
-        return new Bullet(this.x + this.sprite.width / 2, this.y, BulletOrigin.player );
+        return new Bullet(this.x + this.sprite.width / 2 + 1, this.y + 5, BulletOrigin.player );
     };
 
 

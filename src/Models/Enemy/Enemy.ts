@@ -3,13 +3,16 @@ import { Bullet } from '../../Models/Other/Bullet';
 import { BulletOrigin } from '../Types/BulletType';
 export class Enemy {
     public static generatedEnemies: number = 0;
+    private static enemyShips: string[] = ["enemyLeft", "enemyLeft2", "enemyLeft3"]; 
     private sprite: PIXI.Sprite;
     public static enemies: Enemy[] = [];
 
-    private _movementSpeed: number = 2;
+    public static movementSpeed: number = 1;
 
     public constructor() {
-        this.sprite = PIXI.Sprite.from(app.loader.resources.enemyLeft.url);
+        this.sprite = PIXI.Sprite.from(app.loader.resources[`${Enemy.enemyShips[Math.round(Math.random()*2)]}`].url);
+        this.sprite.scale.x = -0.1;
+        this.sprite.scale.y = 0.1;
         this.sprite.x = app.view.width - this.sprite.width / 2;
         this.sprite.y = Math.random() * app.view.height; //app.view.height / 2;
         this.sprite.anchor.set(0.5);
@@ -35,9 +38,12 @@ export class Enemy {
     public get y(): number {
         return this.sprite.y;
     };
-    public get movementSpeed(): number {
-        return this._movementSpeed;
-    };
+    // public set movementSpeed(value: number) {
+    //     Enemy._movementSpeed += value;
+    // };
+    // public get movementSpeed(): number {
+    //     return Enemy._movementSpeed;
+    // };
 
     public getBounds(): any {
         return this.sprite.getBounds();
@@ -45,10 +51,11 @@ export class Enemy {
 
     public removeEnemy(): void {
         app.stage.removeChild(this.sprite);
-        Enemy.enemies.splice(Enemy.enemies.findIndex(enemy => enemy.x === this.sprite.x), 1);
+        // Enemy.enemies.splice(Enemy.enemies.findIndex(enemy => enemy.x === this.sprite.x), 1);
+        Enemy.enemies = Enemy.enemies.filter(enemy => enemy.x !== this.sprite.x);
     };
     public fire(): Bullet {
-        return new Bullet((this.x - this.sprite.width / 2 - 8), this.y, BulletOrigin.enemy);
+        return new Bullet((this.x - this.sprite.width / 2 - 8), this.y + 5, BulletOrigin.enemy);
     };
    
 };

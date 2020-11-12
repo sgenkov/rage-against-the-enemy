@@ -5,16 +5,16 @@ import { Bullet } from './Models/Other/Bullet';
 
 let score: number = 0;
 let distanceTraveled: number = 0;
-// let globalLivesLeft: number = 0;
+let hiScore: number = 0;
 const livesInfo: any = document.querySelector("#lives");
 const scoreInfo: any = document.querySelector("#score");
 const bulletsInfo: any = document.querySelector("#bullets");
 const distanceTraveledInfo: any = document.querySelector("#distanceTraveled");
 const playground: any = document.querySelector("#playground");
-// const keysInfo: any = document.querySelector("#keys");
 const enemiesInfo = document.querySelector("#enemies");
+const hiScoreInfo = document.querySelector("#hiScore");
+hiScoreInfo && (hiScoreInfo.innerHTML = 'HiScore :' + 0);
 const keys: any = {};
-const stage = new PIXI.Container();
 let PLAYER: PlayerShip;
 
 function collision(a: any, b: any) { //function collision(a: Enemy, b: PlayerShip) { // AD SOME INTERFACES FOR Enemy and Player calsses
@@ -41,13 +41,7 @@ const showProgress = (e: any) => {
 
 const doneLoading = () => {
     PLAYER = new PlayerShip();
-
-    // globalLivesLeft = PLAYER.livesLeft;
-    // console.log(Enemy.enemies);
-    // const ENEMY = new Enemy();
-    setInterval(() => new Enemy(), 700);
-    // console.log(Enemy.enemies);
-    // livesInfo.innerHTML = 'Lives: ' + JSON.stringify(globalLivesLeft);
+    setInterval(() => new Enemy(), 1200);
     app.ticker.add(gameLoop);
 };
 
@@ -55,14 +49,23 @@ const reset = () => {
     Enemy.enemies.forEach(enemy => enemy.removeEnemy());
     Bullet.bullets.forEach(bullet => bullet.removeBullet());
     PLAYER.livesLeft = 3;
-}
+    distanceTraveled = 0;
+    if (score > hiScore) {
+        hiScore = score;
+    };
+    score = 0;
+    hiScoreInfo && (hiScoreInfo.innerHTML = 'HiScore: ' + JSON.stringify(hiScore));
+};
 function gameLoop() {
+    // if ( Math.ceil(distanceTraveled / 10 ) > 100) {
+    //     Enemy.movementSpeed ++;
+    // }
     if (PLAYER.livesLeft < 1) {
         reset();
-     };
- 
+    };
+
+
     ++distanceTraveled;
-    // console.log(Enemy.enemies);
     // let accel;
     if (keys["87"] && PLAYER.y > 50) { // W - UP
 
@@ -96,7 +99,7 @@ function gameLoop() {
             enemy.fire();
         };
     });
-    Enemy.enemies.forEach(enemy => enemy.x -= enemy.movementSpeed);
+    Enemy.enemies.forEach(enemy => enemy.x -= Enemy.movementSpeed);
 
     Enemy.enemies.forEach((enemy, index) => {
         if (collision(enemy, PLAYER)) {
@@ -122,7 +125,7 @@ function gameLoop() {
             };
         })
     });
-    
+
 
     livesInfo.innerHTML = 'Lives: ' + JSON.stringify(PLAYER.livesLeft);
     scoreInfo.innerHTML = 'Score: ' + JSON.stringify(score);
@@ -149,7 +152,7 @@ function gameLoop() {
         });
     }
 
-    
+
 };
 
 const reportError = (e: any) => {
@@ -177,16 +180,22 @@ document.body.appendChild(app.view);
 
 distanceTraveledInfo.innerHTML = 'Distance traveled: ' + JSON.stringify(distanceTraveled);
 
-app.loader.baseUrl = "../src/images";
+app.loader.baseUrl = "../src/assets";
 app.loader
-    .add("shipRight", "shipRight.png")
-    .add("shipLeft", "shipLeft.png")
-    .add("shipUp", "shipUp.png")
-    .add("shipDown", "shipDown.png")
-    .add("bulletRight", "bulletRight.png")
-    .add("player", "player.png")
-    .add("enemyLeft", "enemyLeft.png")
-    .add("bulletLeft", "enemyBulletLeft.png")
+.add("shipRight", "Ships/shipRight.png")
+.add("enemyLeft", "Ships/plane_3_red.png")
+.add("enemyLeft2", "Ships/plane_3_blue.png")
+.add("enemyLeft3", "Ships/plane_3_yellow.png")
+.add("bulletRight", "Bullets/bulletRight.png")
+.add("bulletLeft", "Bullets/enemyBulletLeft.png")
+    // .add("shipRight", "plane_3_green.png")
+    // .add("shipLeft", "shipLeft.png")
+    // .add("shipUp", "shipUp.png")
+    // .add("shipDown", "shipDown.png")
+    // .add("bulletRight", "bulletRight.png")
+    // .add("player", "player.png")
+    // .add("enemyLeft", "enemyLeft.png")
+    // .add("bulletLeft", "enemyBulletLeft.png")
 
 app.loader.onProgress.add(showProgress);
 app.loader.onComplete.add(doneLoading);

@@ -7,8 +7,9 @@ const Bullet_1 = require("../../Models/Other/Bullet");
 const BulletType_1 = require("../Types/BulletType");
 class Enemy {
     constructor() {
-        this._movementSpeed = 2;
-        this.sprite = PIXI.Sprite.from(index_1.app.loader.resources.enemyLeft.url);
+        this.sprite = PIXI.Sprite.from(index_1.app.loader.resources[`${Enemy.enemyShips[Math.round(Math.random() * 2)]}`].url);
+        this.sprite.scale.x = -0.1;
+        this.sprite.scale.y = 0.1;
         this.sprite.x = index_1.app.view.width - this.sprite.width / 2;
         this.sprite.y = Math.random() * index_1.app.view.height; //app.view.height / 2;
         this.sprite.anchor.set(0.5);
@@ -38,27 +39,32 @@ class Enemy {
         return this.sprite.y;
     }
     ;
-    get movementSpeed() {
-        return this._movementSpeed;
-    }
-    ;
+    // public set movementSpeed(value: number) {
+    //     Enemy._movementSpeed += value;
+    // };
+    // public get movementSpeed(): number {
+    //     return Enemy._movementSpeed;
+    // };
     getBounds() {
         return this.sprite.getBounds();
     }
     ;
     removeEnemy() {
         index_1.app.stage.removeChild(this.sprite);
-        Enemy.enemies.splice(Enemy.enemies.findIndex(enemy => enemy.x === this.sprite.x), 1);
+        // Enemy.enemies.splice(Enemy.enemies.findIndex(enemy => enemy.x === this.sprite.x), 1);
+        Enemy.enemies = Enemy.enemies.filter(enemy => enemy.x !== this.sprite.x);
     }
     ;
     fire() {
-        return new Bullet_1.Bullet((this.x - this.sprite.width / 2 - 8), this.y, BulletType_1.BulletOrigin.enemy);
+        return new Bullet_1.Bullet((this.x - this.sprite.width / 2 - 8), this.y + 5, BulletType_1.BulletOrigin.enemy);
     }
     ;
 }
 exports.Enemy = Enemy;
 Enemy.generatedEnemies = 0;
+Enemy.enemyShips = ["enemyLeft", "enemyLeft2", "enemyLeft3"];
 Enemy.enemies = [];
+Enemy.movementSpeed = 1;
 ;
 
 },{"../../Models/Other/Bullet":2,"../../index":5,"../Types/BulletType":4}],2:[function(require,module,exports){
@@ -73,6 +79,8 @@ class Bullet {
         this.sprite = PIXI.Sprite.from(index_1.app.loader.resources[(origin === BulletType_1.BulletOrigin.player) ? "bulletRight" : "bulletLeft"].url);
         this.sprite.x = ownerX;
         this.sprite.y = ownerY;
+        this.sprite.scale.x = ((origin === BulletType_1.BulletOrigin.player) ? 0.2 : -0.2);
+        this.sprite.scale.y = 0.2;
         this.sprite.anchor.set(0.5);
         this.origin = origin;
         this.movementSpeed = ((origin === BulletType_1.BulletOrigin.player) ? 20 : -10);
@@ -138,6 +146,8 @@ class PlayerShip {
         this.sprite = PIXI.Sprite.from(index_1.app.loader.resources.shipRight.url);
         // this.sprite = PIXI.Sprite.from('/src/images/shipRight.png'); 
         // this.printer(app.loader.resources);
+        this.sprite.scale.x = 0.1;
+        this.sprite.scale.y = 0.1;
         this.sprite.x = this.sprite.width / 2;
         this.sprite.y = index_1.app.view.height / 2;
         this.sprite.anchor.set(0.5);
@@ -183,7 +193,7 @@ class PlayerShip {
     }
     ;
     fire() {
-        return new Bullet_1.Bullet(this.x + this.sprite.width / 2, this.y, BulletType_1.BulletOrigin.player);
+        return new Bullet_1.Bullet(this.x + this.sprite.width / 2 + 1, this.y + 5, BulletType_1.BulletOrigin.player);
     }
     ;
 }
@@ -212,16 +222,16 @@ const Enemy_1 = require("./Models/Enemy/Enemy");
 const Bullet_1 = require("./Models/Other/Bullet");
 let score = 0;
 let distanceTraveled = 0;
-// let globalLivesLeft: number = 0;
+let hiScore = 0;
 const livesInfo = document.querySelector("#lives");
 const scoreInfo = document.querySelector("#score");
 const bulletsInfo = document.querySelector("#bullets");
 const distanceTraveledInfo = document.querySelector("#distanceTraveled");
 const playground = document.querySelector("#playground");
-// const keysInfo: any = document.querySelector("#keys");
 const enemiesInfo = document.querySelector("#enemies");
+const hiScoreInfo = document.querySelector("#hiScore");
+hiScoreInfo && (hiScoreInfo.innerHTML = 'HiScore :' + 0);
 const keys = {};
-const stage = new PIXI.Container();
 let PLAYER;
 function collision(a, b) {
     const aBox = a.getBounds();
@@ -246,26 +256,30 @@ const showProgress = (e) => {
 };
 const doneLoading = () => {
     PLAYER = new PlayerShip_1.PlayerShip();
-    // globalLivesLeft = PLAYER.livesLeft;
-    // console.log(Enemy.enemies);
-    // const ENEMY = new Enemy();
-    setInterval(() => new Enemy_1.Enemy(), 700);
-    // console.log(Enemy.enemies);
-    // livesInfo.innerHTML = 'Lives: ' + JSON.stringify(globalLivesLeft);
+    setInterval(() => new Enemy_1.Enemy(), 1200);
     exports.app.ticker.add(gameLoop);
 };
 const reset = () => {
     Enemy_1.Enemy.enemies.forEach(enemy => enemy.removeEnemy());
     Bullet_1.Bullet.bullets.forEach(bullet => bullet.removeBullet());
     PLAYER.livesLeft = 3;
+    distanceTraveled = 0;
+    if (score > hiScore) {
+        hiScore = score;
+    }
+    ;
+    score = 0;
+    hiScoreInfo && (hiScoreInfo.innerHTML = 'HiScore: ' + JSON.stringify(hiScore));
 };
 function gameLoop() {
+    // if ( Math.ceil(distanceTraveled / 10 ) > 100) {
+    //     Enemy.movementSpeed ++;
+    // }
     if (PLAYER.livesLeft < 1) {
         reset();
     }
     ;
     ++distanceTraveled;
-    // console.log(Enemy.enemies);
     // let accel;
     if (keys["87"] && PLAYER.y > 50) { // W - UP
         PLAYER.y -= PLAYER.movementSpeed;
@@ -303,7 +317,7 @@ function gameLoop() {
         }
         ;
     });
-    Enemy_1.Enemy.enemies.forEach(enemy => enemy.x -= enemy.movementSpeed);
+    Enemy_1.Enemy.enemies.forEach(enemy => enemy.x -= Enemy_1.Enemy.movementSpeed);
     Enemy_1.Enemy.enemies.forEach((enemy, index) => {
         if (collision(enemy, PLAYER)) {
             PLAYER.livesLeft--;
@@ -374,16 +388,22 @@ exports.app = new PIXI.Application({
 });
 document.body.appendChild(exports.app.view);
 distanceTraveledInfo.innerHTML = 'Distance traveled: ' + JSON.stringify(distanceTraveled);
-exports.app.loader.baseUrl = "../src/images";
+exports.app.loader.baseUrl = "../src/assets";
 exports.app.loader
-    .add("shipRight", "shipRight.png")
-    .add("shipLeft", "shipLeft.png")
-    .add("shipUp", "shipUp.png")
-    .add("shipDown", "shipDown.png")
-    .add("bulletRight", "bulletRight.png")
-    .add("player", "player.png")
-    .add("enemyLeft", "enemyLeft.png")
-    .add("bulletLeft", "enemyBulletLeft.png");
+    .add("shipRight", "Ships/shipRight.png")
+    .add("enemyLeft", "Ships/plane_3_red.png")
+    .add("enemyLeft2", "Ships/plane_3_blue.png")
+    .add("enemyLeft3", "Ships/plane_3_yellow.png")
+    .add("bulletRight", "Bullets/bulletRight.png")
+    .add("bulletLeft", "Bullets/enemyBulletLeft.png");
+// .add("shipRight", "plane_3_green.png")
+// .add("shipLeft", "shipLeft.png")
+// .add("shipUp", "shipUp.png")
+// .add("shipDown", "shipDown.png")
+// .add("bulletRight", "bulletRight.png")
+// .add("player", "player.png")
+// .add("enemyLeft", "enemyLeft.png")
+// .add("bulletLeft", "enemyBulletLeft.png")
 exports.app.loader.onProgress.add(showProgress);
 exports.app.loader.onComplete.add(doneLoading);
 exports.app.loader.onError.add(reportError);

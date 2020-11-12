@@ -11,6 +11,8 @@ export class Bullet {
         this.sprite = PIXI.Sprite.from(app.loader.resources[(origin === BulletOrigin.player)? "bulletRight" : "bulletLeft"].url);
         this.sprite.x = ownerX;
         this.sprite.y = ownerY;
+        this.sprite.scale.x = ((origin === BulletOrigin.player)? 0.2 : -0.2);
+        this.sprite.scale.y = 0.2;
         this.sprite.anchor.set(0.5);
         this.origin = origin;
         this.movementSpeed = ((origin === BulletOrigin.player)? 20 : -10);
