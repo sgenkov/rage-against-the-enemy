@@ -7,11 +7,12 @@ const Bullet_1 = require("../../Models/Other/Bullet");
 const BulletType_1 = require("../Types/BulletType");
 class Enemy {
     constructor() {
-        this.sprite = PIXI.Sprite.from(index_1.app.loader.resources[`${Enemy.enemyShips[Math.round(Math.random() * 2)]}`].url);
+        this.sprite = PIXI.Sprite.from(index_1.app.loader.resources[`${Enemy.enemyShipsTypes[Math.round(Math.random() * 2)]}`].url);
         this.sprite.scale.x = -0.1;
         this.sprite.scale.y = 0.1;
         this.sprite.x = index_1.app.view.width - this.sprite.width / 2;
-        this.sprite.y = Math.random() * index_1.app.view.height; //app.view.height / 2;
+        // this.sprite.y = Math.random() * app.view.height + this.sprite.height/2; 
+        this.sprite.y = Math.random() * (index_1.app.view.height - 45) + 20;
         this.sprite.anchor.set(0.5);
         Enemy.generatedEnemies++;
         Enemy.enemies.push(this);
@@ -62,7 +63,7 @@ class Enemy {
 }
 exports.Enemy = Enemy;
 Enemy.generatedEnemies = 0;
-Enemy.enemyShips = ["enemyLeft", "enemyLeft2", "enemyLeft3"];
+Enemy.enemyShipsTypes = ["enemyLeft", "enemyLeft2", "enemyLeft3"];
 Enemy.enemies = [];
 Enemy.movementSpeed = 1;
 ;
@@ -118,13 +119,21 @@ class Bullet {
         return this._movementSpeed;
     }
     ;
+    get origin() {
+        return this._origin;
+    }
+    ;
+    set origin(value) {
+        this._origin = value;
+    }
+    ;
     getBounds() {
         return this.sprite.getBounds();
     }
     ;
     removeBullet() {
         index_1.app.stage.removeChild(this.sprite);
-        Bullet.bullets.splice(Bullet.bullets.findIndex(bullet => bullet.x === this.sprite.x), 1);
+        Bullet.bullets.splice(Bullet.bullets.findIndex(bullet => (bullet.x === this.sprite.x) && (bullet.y === this.sprite.y)), 1);
     }
     ;
 }
@@ -221,16 +230,18 @@ exports.app = void 0;
 const PlayerShip_1 = require("./Models/Player/PlayerShip");
 const Enemy_1 = require("./Models/Enemy/Enemy");
 const Bullet_1 = require("./Models/Other/Bullet");
+const BulletType_1 = require("./Models/Types/BulletType");
 let score = 0;
 let distanceTraveled = 0;
 let hiScore = 0;
 const livesInfo = document.querySelector("#lives");
 const scoreInfo = document.querySelector("#score");
-const bulletsInfo = document.querySelector("#bullets");
+// const bulletsInfo: any = document.querySelector("#bullets");
 const distanceTraveledInfo = document.querySelector("#distanceTraveled");
 const playground = document.querySelector("#playground");
-const enemiesInfo = document.querySelector("#enemies");
+// const enemiesInfo = document.querySelector("#enemies");
 const hiScoreInfo = document.querySelector("#hiScore");
+const resumeButton = document.querySelector("#resume-button");
 hiScoreInfo && (hiScoreInfo.innerHTML = 'HiScore :' + 0);
 const keys = {};
 let PLAYER;
@@ -241,25 +252,30 @@ let bgFront;
 let bgX = 0;
 let bgSpeed = 1;
 function createBg(texture) {
-    console.log('CreateBg called');
-    let tiling = new PIXI.extras.TilingSprite(texture, 2050, 1600);
+    let tiling = new PIXI.extras.TilingSprite(texture, exports.app.view.width, exports.app.view.height);
     tiling.position.set(0, 0);
+    tiling.tileScale.x = 2.5;
+    tiling.tileScale.y = 3.8;
     exports.app.stage.addChild(tiling);
     return tiling;
 }
 ;
 function updateBg() {
     bgX = (bgX + bgSpeed);
-    console.log(bgFront.X);
     bgX++;
-    bgFront.position.x = bgX;
-    bgMiddle.position.x = bgX / 2;
-    bgBack.position.x = bgX / 4;
+    bgFront.tilePosition.x = -bgX;
+    bgMiddle.tilePosition.x = -bgX / 2;
+    bgBack.tilePosition.x = -bgX / 4;
 }
 // PARALLAX ==================================================================================^
 function collision(a, b) {
     const aBox = a.getBounds();
     const bBox = b.getBounds();
+    if ((a instanceof Enemy_1.Enemy) && (b instanceof Bullet_1.Bullet) && (b.origin === BulletType_1.BulletOrigin.enemy)
+        || (b instanceof Enemy_1.Enemy) && (a instanceof Bullet_1.Bullet) && (a.origin === BulletType_1.BulletOrigin.enemy)) {
+        return false;
+    }
+    ;
     //  console.log('abox :', typeof a);
     //  console.log('bbox :', typeof b);
     if (aBox.x + aBox.width > bBox.x
@@ -368,7 +384,7 @@ function gameLoop() {
         ;
         Enemy_1.Enemy.enemies.forEach((enemy, enemyIndex) => {
             if (collision(enemy, bullet)) {
-                // Bullet.bullets.splice(bulletIndex, 1);
+                // Bullet.bullets.splice(bulletIndex, 1); 
                 bullet.removeBullet();
                 // Enemy.enemies.splice(enemyIndex, 1);
                 enemy.removeEnemy();
@@ -380,26 +396,26 @@ function gameLoop() {
     livesInfo.innerHTML = 'Lives: ' + JSON.stringify(PLAYER.livesLeft);
     scoreInfo.innerHTML = 'Score: ' + JSON.stringify(score);
     distanceTraveledInfo.innerHTML = 'Distance traveled: ' + Math.ceil(distanceTraveled / 10);
-    bulletsInfo.innerHTML = 'Bullets: ' + Bullet_1.Bullet.bullets.map((bullet, index) => {
-        if (index > 6) {
-            return '...';
-        }
-        return JSON.stringify({
-            X: bullet.x,
-            Y: Math.round(bullet.y)
-        });
-    });
-    if (enemiesInfo) {
-        enemiesInfo.innerHTML = 'Enemies: ' + Enemy_1.Enemy.enemies.map((enemy, index) => {
-            if (index > 6) {
-                return '...';
-            }
-            return JSON.stringify({
-                X: enemy.x,
-                Y: Math.round(enemy.y)
-            });
-        });
-    }
+    // bulletsInfo.innerHTML = 'Bullets: ' + Bullet.bullets.map((bullet, index) => { // delete this row on production
+    //     if (index > 6) {
+    //         return '...';
+    //     }
+    //     return JSON.stringify({
+    //         X: bullet.x,
+    //         Y: Math.round(bullet.y)
+    //     })
+    // });
+    // if (enemiesInfo) {
+    //     enemiesInfo.innerHTML = 'Enemies: ' + Enemy.enemies.map((enemy, index) => {
+    //         if (index > 6) {
+    //             return '...';
+    //         }
+    //         return JSON.stringify({
+    //             X: enemy.x,
+    //             Y: Math.round(enemy.y)
+    //         })
+    //     });
+    // }
 }
 ;
 const reportError = (e) => {
@@ -435,7 +451,7 @@ exports.app.loader.onProgress.add(showProgress);
 exports.app.loader.onComplete.add(doneLoading);
 exports.app.loader.onError.add(reportError);
 exports.app.loader.load();
-exports.app.stage.interactive = false;
+exports.app.stage.interactive = true;
 document.addEventListener("keydown", keysDown);
 document.addEventListener("keyup", keysUp);
 // keysInfo.innerHTML = JSON.stringify(keys);
@@ -449,4 +465,4 @@ document.body.addEventListener("pointerdown", () => PLAYER.fire());
 // stage.hitArea = new PIXI.Rectangle(0, 0, 1000, 1000);
 // renderer.render(stage);
 
-},{"./Models/Enemy/Enemy":1,"./Models/Other/Bullet":2,"./Models/Player/PlayerShip":3}]},{},[5]);
+},{"./Models/Enemy/Enemy":1,"./Models/Other/Bullet":2,"./Models/Player/PlayerShip":3,"./Models/Types/BulletType":4}]},{},[5]);

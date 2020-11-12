@@ -4,7 +4,7 @@ export class Bullet {
     public static bullets: Bullet[] = [];
     private sprite: PIXI.Sprite;
     private _movementSpeed: number; 
-    private origin: BulletOrigin;
+    public _origin: BulletOrigin;
 
     public constructor(ownerX: number, ownerY: number, origin: BulletOrigin) {
         const bullet = (origin === BulletOrigin.player? "bulletRight" : "bulletLeft")
@@ -47,13 +47,21 @@ export class Bullet {
         return this._movementSpeed;
     };
 
+    public get origin(): BulletOrigin {
+        return this._origin;
+    };
+
+    public set origin(value: BulletOrigin) {
+        this._origin = value;
+    };
+
     public getBounds(): any {
         return this.sprite.getBounds();
     };
 
     public removeBullet(): void {
         app.stage.removeChild(this.sprite);
-        Bullet.bullets.splice(Bullet.bullets.findIndex(bullet => bullet.x === this.sprite.x), 1);
+        Bullet.bullets.splice(Bullet.bullets.findIndex(bullet => (bullet.x === this.sprite.x)&&(bullet.y === this.sprite.y)), 1);
     };
 
 };

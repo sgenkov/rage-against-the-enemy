@@ -3,18 +3,19 @@ import { Bullet } from '../../Models/Other/Bullet';
 import { BulletOrigin } from '../Types/BulletType';
 export class Enemy {
     public static generatedEnemies: number = 0;
-    private static enemyShips: string[] = ["enemyLeft", "enemyLeft2", "enemyLeft3"]; 
+    private static enemyShipsTypes: string[] = ["enemyLeft", "enemyLeft2", "enemyLeft3"]; 
     private sprite: PIXI.Sprite;
     public static enemies: Enemy[] = [];
 
     public static movementSpeed: number = 1;
 
     public constructor() {
-        this.sprite = PIXI.Sprite.from(app.loader.resources[`${Enemy.enemyShips[Math.round(Math.random()*2)]}`].url);
+        this.sprite = PIXI.Sprite.from(app.loader.resources[`${Enemy.enemyShipsTypes[Math.round(Math.random()*2)]}`].url);
         this.sprite.scale.x = -0.1;
         this.sprite.scale.y = 0.1;
         this.sprite.x = app.view.width - this.sprite.width / 2;
-        this.sprite.y = Math.random() * app.view.height; //app.view.height / 2;
+        // this.sprite.y = Math.random() * app.view.height + this.sprite.height/2; 
+        this.sprite.y = Math.random() * (app.view.height - 45) + 20; 
         this.sprite.anchor.set(0.5);
         Enemy.generatedEnemies++;
         Enemy.enemies.push(this);

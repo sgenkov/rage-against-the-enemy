@@ -4,18 +4,19 @@ import { PlayerShip } from './Models/Player/PlayerShip';
 import { Enemy } from './Models/Enemy/Enemy';
 import { Bullet } from './Models/Other/Bullet';
 import { Parallax } from './Parallax/Parallax';
-import { updateBindingElement } from 'typescript';
+import { BulletOrigin } from './Models/Types/BulletType';
 
 let score: number = 0;
 let distanceTraveled: number = 0;
 let hiScore: number = 0;
 const livesInfo: any = document.querySelector("#lives");
 const scoreInfo: any = document.querySelector("#score");
-const bulletsInfo: any = document.querySelector("#bullets");
+// const bulletsInfo: any = document.querySelector("#bullets");
 const distanceTraveledInfo: any = document.querySelector("#distanceTraveled");
 const playground: any = document.querySelector("#playground");
-const enemiesInfo = document.querySelector("#enemies");
+// const enemiesInfo = document.querySelector("#enemies");
 const hiScoreInfo = document.querySelector("#hiScore");
+const resumeButton: HTMLButtonElement | null = document.querySelector("#resume-button");
 hiScoreInfo && (hiScoreInfo.innerHTML = 'HiScore :' + 0);
 const keys: any = {};
 let PLAYER: PlayerShip;
@@ -27,10 +28,12 @@ let bgFront: any;
 let bgX = 0;
 let bgSpeed = 1;
 function createBg(texture: any) {
-    console.log('CreateBg called');
 
-    let tiling = new PIXI.extras.TilingSprite(texture, 2050, 1600);
+    let tiling: PIXI.extras.TilingSprite = new PIXI.extras.TilingSprite(texture, app.view.width, app.view.height);
+
     tiling.position.set(0, 0);
+    tiling.tileScale.x = 2.5;
+    tiling.tileScale.y = 3.8;
     app.stage.addChild(tiling);
 
     return tiling;
@@ -38,11 +41,10 @@ function createBg(texture: any) {
 
 function updateBg() {
     bgX = (bgX + bgSpeed);
-    console.log(bgFront.X);
     bgX++;
-    bgFront.position.x = bgX;
-    bgMiddle.position.x = bgX / 2;
-    bgBack.position.x = bgX / 4;
+    bgFront.tilePosition.x = -bgX;
+    bgMiddle.tilePosition.x = -bgX / 2;
+    bgBack.tilePosition.x = -bgX / 4;
 
 }
 
@@ -54,6 +56,10 @@ function updateBg() {
 function collision(a: any, b: any) { //function collision(a: Enemy, b: PlayerShip) { // ADD SOME INTERFACE FOR Enemy and Player calsses
     const aBox = a.getBounds();
     const bBox = b.getBounds();
+    if ((a instanceof Enemy) && (b instanceof Bullet) && (b.origin === BulletOrigin.enemy)
+        || (b instanceof Enemy) && (a instanceof Bullet) && (a.origin === BulletOrigin.enemy)) {
+        return false;
+    };
     //  console.log('abox :', typeof a);
     //  console.log('bbox :', typeof b);
 
@@ -86,7 +92,10 @@ const doneLoading = () => {
 
 
     app.ticker.add(gameLoop);
+
 };
+
+
 
 const reset = () => {
     Enemy.enemies.forEach(enemy => enemy.removeEnemy());
@@ -166,7 +175,7 @@ function gameLoop() {
         };
         Enemy.enemies.forEach((enemy, enemyIndex) => {
             if (collision(enemy, bullet)) {
-                // Bullet.bullets.splice(bulletIndex, 1);
+                // Bullet.bullets.splice(bulletIndex, 1); 
                 bullet.removeBullet();
                 // Enemy.enemies.splice(enemyIndex, 1);
                 enemy.removeEnemy();
@@ -179,27 +188,27 @@ function gameLoop() {
     livesInfo.innerHTML = 'Lives: ' + JSON.stringify(PLAYER.livesLeft);
     scoreInfo.innerHTML = 'Score: ' + JSON.stringify(score);
     distanceTraveledInfo.innerHTML = 'Distance traveled: ' + Math.ceil(distanceTraveled / 10);
-    bulletsInfo.innerHTML = 'Bullets: ' + Bullet.bullets.map((bullet, index) => { // delete this row on production
-        if (index > 6) {
-            return '...';
-        }
-        return JSON.stringify({
-            X: bullet.x,
-            Y: Math.round(bullet.y)
-        })
-    });
+    // bulletsInfo.innerHTML = 'Bullets: ' + Bullet.bullets.map((bullet, index) => { // delete this row on production
+    //     if (index > 6) {
+    //         return '...';
+    //     }
+    //     return JSON.stringify({
+    //         X: bullet.x,
+    //         Y: Math.round(bullet.y)
+    //     })
+    // });
 
-    if (enemiesInfo) {
-        enemiesInfo.innerHTML = 'Enemies: ' + Enemy.enemies.map((enemy, index) => {
-            if (index > 6) {
-                return '...';
-            }
-            return JSON.stringify({
-                X: enemy.x,
-                Y: Math.round(enemy.y)
-            })
-        });
-    }
+    // if (enemiesInfo) {
+    //     enemiesInfo.innerHTML = 'Enemies: ' + Enemy.enemies.map((enemy, index) => {
+    //         if (index > 6) {
+    //             return '...';
+    //         }
+    //         return JSON.stringify({
+    //             X: enemy.x,
+    //             Y: Math.round(enemy.y)
+    //         })
+    //     });
+    // }
 
 
 };
@@ -246,7 +255,7 @@ app.loader.onComplete.add(doneLoading);
 app.loader.onError.add(reportError);
 
 app.loader.load();
-app.stage.interactive = false;
+app.stage.interactive = true;
 document.addEventListener("keydown", keysDown);
 document.addEventListener("keyup", keysUp);
 // keysInfo.innerHTML = JSON.stringify(keys);
