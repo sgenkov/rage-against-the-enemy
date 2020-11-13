@@ -52,8 +52,9 @@ export class Enemy {
 
     public removeEnemy(): void {
         app.stage.removeChild(this.sprite);
-        // Enemy.enemies.splice(Enemy.enemies.findIndex(enemy => enemy.x === this.sprite.x), 1);
-        Enemy.enemies = Enemy.enemies.filter(enemy => enemy.x !== this.sprite.x);
+        Enemy.enemies.splice(Enemy.enemies.findIndex(enemy => (enemy.x === this.sprite.x)&&(enemy.y === this.sprite.y) ), 1);
+        // Bullet.bullets.splice(Bullet.bullets.findIndex(bullet => (bullet.x === this.sprite.x)&&(bullet.y === this.sprite.y)), 1);
+        // Enemy.enemies = Enemy.enemies.filter(enemy => enemy.x !== this.sprite.x);
     };
     public fire(): Bullet {
         return new Bullet((this.x - this.sprite.width / 2 - 8), this.y + 5, BulletOrigin.enemy);
