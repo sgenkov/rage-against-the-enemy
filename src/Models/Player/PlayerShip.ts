@@ -1,6 +1,7 @@
-import { app } from '../../index';
+// import { app } from '../../index';
 import { Bullet } from '../Other/Bullet';
 import { BulletOrigin } from '../Types/BulletType';
+// import { App } from '../../App';
 export class PlayerShip {
 
     public static shipsCreated = 0;
@@ -8,7 +9,7 @@ export class PlayerShip {
     private _livesLeft: number = 3;
     private _movementSpeed: number = 5;
 
-    public constructor() {
+    public constructor(public app: PIXI.Application) {
         this.sprite = PIXI.Sprite.from(app.loader.resources.shipRight.url);
         this.sprite.scale.x = 0.1;
         this.sprite.scale.y = 0.1;
@@ -53,6 +54,6 @@ export class PlayerShip {
     };
 
     public fire(): Bullet {
-        return new Bullet(this.x + this.sprite.width / 2 + 1, this.y + 5, BulletOrigin.player );
+        return new Bullet(this.x + this.sprite.width / 2 + 1, this.y + 5, BulletOrigin.player, this.app );
     };
 };

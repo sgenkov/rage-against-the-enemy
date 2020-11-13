@@ -1,4 +1,4 @@
-import { app } from '../../index';
+// import { app } from '../../index';
 import { Bullet } from '../../Models/Other/Bullet';
 import { BulletOrigin } from '../Types/BulletType';
 export class Enemy {
@@ -10,7 +10,7 @@ export class Enemy {
 
     private _movementSpeed: number = 1;
 
-    public constructor() {
+    public constructor(public app: PIXI.Application) {
         this.shipType = `${Enemy.enemyShipsTypes[Math.round(Math.random() * 2)]}`;
         this.sprite = PIXI.Sprite.from(app.loader.resources[`${this.shipType}`].url);
         this.sprite.scale.x = -0.1;
@@ -26,7 +26,7 @@ export class Enemy {
 
     public set x(value: number) {
         this.sprite.x = value;
-        if (value < -this.sprite.width/2) {
+        if (value < -this.sprite.width / 2) {
             this.removeEnemy();
         };
     };
@@ -51,16 +51,20 @@ export class Enemy {
     };
 
     public removeEnemy(): void {
-        app.stage.removeChild(this.sprite);
+        this.app.stage.removeChild(this.sprite);
         Enemy.enemies.splice(Enemy.enemies.findIndex(enemy => (enemy.x === this.sprite.x) && (enemy.y === this.sprite.y)), 1);
     };
     public fire(): Bullet {
         return (
             new Bullet((this.x - this.sprite.width / 2 - (
-                (this.movementSpeed > 2)
-                ? 9
-                : 8
-                )), this.y + 5, BulletOrigin.enemy)
+                (
+                    this.movementSpeed > 2)
+                    ? 9
+                    : 8
+            )),
+                this.y + 5, BulletOrigin.enemy,
+                this.app
+            )
         );
     };
 

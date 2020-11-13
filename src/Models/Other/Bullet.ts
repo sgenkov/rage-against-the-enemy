@@ -1,4 +1,4 @@
-import { app } from '../../index';
+// import { app } from '../../index';
 import { BulletOrigin } from '../Types/BulletType';
 export class Bullet {
     public static bullets: Bullet[] = [];
@@ -6,7 +6,7 @@ export class Bullet {
     private _movementSpeed: number; 
     public _origin: BulletOrigin;
 
-    public constructor(ownerX: number, ownerY: number, origin: BulletOrigin) {
+    public constructor(ownerX: number, ownerY: number, origin: BulletOrigin, public app: PIXI.Application) {
         const bullet = (origin === BulletOrigin.player? "bulletRight" : "bulletLeft")
         this.sprite = PIXI.Sprite.from(app.loader.resources[(origin === BulletOrigin.player)? "bulletRight" : "bulletLeft"].url);
         this.sprite.x = ownerX;
@@ -22,7 +22,7 @@ export class Bullet {
 
     public set x(value: number) {
         this.sprite.x = value;
-        if ((value > app.view.width - this.sprite.width / 2) || (value < 0)) {
+        if ((value > this.app.view.width - this.sprite.width / 2) || (value < 0)) {
             this.removeBullet();
             // Bullet.bullets.filter(bullet => bullet.x === this.sprite.x);
             // Bullet.bullets.splice(Bullet.bullets.findIndex(bullet => bullet.x === this.sprite.x), 1);
@@ -60,7 +60,7 @@ export class Bullet {
     };
 
     public removeBullet(): void {
-        app.stage.removeChild(this.sprite);
+        this.app.stage.removeChild(this.sprite);
         Bullet.bullets.splice(Bullet.bullets.findIndex(bullet => (bullet.x === this.sprite.x)&&(bullet.y === this.sprite.y)), 1);
     };
 
