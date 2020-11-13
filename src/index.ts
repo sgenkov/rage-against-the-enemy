@@ -11,12 +11,11 @@ let distanceTraveled: number = 0;
 let hiScore: number = 0;
 const livesInfo: any = document.querySelector("#lives");
 const scoreInfo: any = document.querySelector("#score");
-const bulletsInfo: any = document.querySelector("#bullets");
+// const bulletsInfo: any = document.querySelector("#bullets");
 const distanceTraveledInfo: any = document.querySelector("#distanceTraveled");
 const playground: any = document.querySelector("#playground");
-const enemiesInfo = document.querySelector("#enemies");
+// const enemiesInfo = document.querySelector("#enemies");
 const hiScoreInfo = document.querySelector("#hiScore");
-const resumeButton: HTMLButtonElement | null = document.querySelector("#resume-button");
 hiScoreInfo && (hiScoreInfo.innerHTML = 'HiScore :' + 0);
 const keys: any = {};
 let PLAYER: PlayerShip;
@@ -188,27 +187,27 @@ function gameLoop() {
     livesInfo.innerHTML = 'Lives: ' + JSON.stringify(PLAYER.livesLeft);
     scoreInfo.innerHTML = 'Score: ' + JSON.stringify(score);
     distanceTraveledInfo.innerHTML = 'Distance traveled: ' + Math.ceil(distanceTraveled / 10);
-    bulletsInfo.innerHTML = 'Bullets: ' + Bullet.bullets.map((bullet, index) => { // delete this row on production
-        if (index > 6) {
-            return '...';
-        }
-        return JSON.stringify({
-            X: bullet.x,
-            Y: Math.round(bullet.y)
-        })
-    });
+    // bulletsInfo.innerHTML = 'Bullets: ' + Bullet.bullets.map((bullet, index) => {
+    //     if (index > 6) {
+    //         return '...';
+    //     }
+    //     return JSON.stringify({
+    //         X: bullet.x,
+    //         Y: Math.round(bullet.y)
+    //     })
+    // });
 
-    if (enemiesInfo) {
-        enemiesInfo.innerHTML = 'Enemies: ' + Enemy.enemies.map((enemy, index) => {
-            if (index > 6) {
-                return '...';
-            }
-            return JSON.stringify({
-                X: enemy.x,
-                Y: Math.round(enemy.y)
-            })
-        });
-    }
+    // if (enemiesInfo) {
+    //     enemiesInfo.innerHTML = 'Enemies: ' + Enemy.enemies.map((enemy, index) => {
+    //         if (index > 6) {
+    //             return '...';
+    //         }
+    //         return JSON.stringify({
+    //             X: enemy.x,
+    //             Y: Math.round(enemy.y)
+    //         })
+    //     });
+    // }
 
 
 };
