@@ -1,10 +1,8 @@
 import { App } from './App';
 const app: PIXI.Application = new PIXI.Application({
-    width: 1050,
-    height: 600,
+    width: window.innerWidth -15,
+    height: window.innerHeight - 25,
     backgroundColor: 0xAAFFFF,
 });
-
-let keyContainer: any = {};
 
 const game = new App(app);

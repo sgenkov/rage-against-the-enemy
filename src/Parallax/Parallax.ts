@@ -1,4 +1,3 @@
-// import { app } from '../index';
 export class Parallax {
     private backgroundFar: PIXI.extras.TilingSprite;
     private backgroungMiddle: PIXI.extras.TilingSprite;
@@ -17,7 +16,7 @@ export class Parallax {
 
         tiling.position.set(0, 0);
         tiling.tileScale.x = 2.5;
-        tiling.tileScale.y = 3.8;
+        tiling.tileScale.y = 5.0;
         this.app.stage.addChild(tiling);
 
         return tiling;

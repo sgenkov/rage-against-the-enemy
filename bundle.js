@@ -1,34 +1,27 @@
 (function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.App = exports.keyssss = void 0;
+exports.App = void 0;
 const PlayerShip_1 = require("./Models/Player/PlayerShip");
 const Enemy_1 = require("./Models/Enemy/Enemy");
 const Parallax_1 = require("./Parallax/Parallax");
 const Bullet_1 = require("./Models/Other/Bullet");
+const Obstacle_1 = require("./Models/Obstacle/Obstacle");
 const BulletType_1 = require("./Models/Types/BulletType");
-exports.keyssss = {};
+let keyssss = {};
 class App {
     constructor(app) {
         this.app = app;
         this.score = 0;
         this.distanceTraveled = 0;
         this.hiScore = 0;
-        this.livesInfo = document.querySelector("#lives");
-        this.scoreInfo = document.querySelector("#score");
-        this.bulletsInfo = document.querySelector("#bullets");
-        this.distanceTraveledInfo = document.querySelector("#distanceTraveled");
-        this.enemiesInfo = document.querySelector("#enemies");
-        this.hiScoreInfo = document.querySelector("#hiScore");
         this.keyssss = {};
-        if (this.hiScoreInfo)
-            this.hiScoreInfo.innerHTML = 'HiScore :' + 0;
         this.createApp();
-        this.distanceTraveledInfo.innerHTML = 'Distance traveled: ' + JSON.stringify(this.distanceTraveled);
         document.body.appendChild(this.app.view);
         document.addEventListener("keydown", this.keysDown);
         document.addEventListener("keyup", this.keysUp);
         document.body.addEventListener("pointerdown", () => this.PLAYER.fire());
+        App.ScoreText.position.y = app.view.height - App.ScoreText.height;
     }
     ;
     createApp() {
@@ -42,7 +35,10 @@ class App {
             .add("bulletLeft", "Bullets/enemyBulletLeft.png")
             .add("foreground", "Mountains/foreground_mountains.png")
             .add("midground", "Mountains/midground_mountains.png")
-            .add("farground", "Mountains/farground_mountains.png");
+            .add("farground", "Mountains/farground_mountains.png")
+            .add("rock", "Obstacles/rock1.png")
+            .add("rock2", "Obstacles/rock2.png")
+            .add("rock3", "Obstacles/rock3.png");
         this.app.loader.onProgress.add(this.showProgress);
         this.app.loader.onComplete.add(() => this.doneLoading(this.app));
         this.app.loader.onError.add(this.reportError);
@@ -72,10 +68,23 @@ class App {
         console.log(e.progress);
     }
     ;
+    reportError(e) {
+        console.log('ERROR : ' + e.message);
+    }
+    ;
+    keysDown(e) {
+        keyssss[`${e.keyCode}`] = true;
+    }
+    ;
+    keysUp(e) {
+        keyssss[`${e.keyCode}`] = false;
+    }
+    ;
     doneLoading(app) {
         this.PARALLAX = new Parallax_1.Parallax("farground", "midground", "foreground", app);
         this.PLAYER = new PlayerShip_1.PlayerShip(app);
         setInterval(() => new Enemy_1.Enemy(app), 1200);
+        setInterval(() => new Obstacle_1.Obstacle(app), 4950);
         app.ticker.add(() => this.gameLoop(app));
     }
     ;
@@ -90,42 +99,49 @@ class App {
             --i;
         }
         ;
-        this.PLAYER.livesLeft = 3;
+        for (let i = 0; i < Obstacle_1.Obstacle.obstacles.length; ++i) {
+            Obstacle_1.Obstacle.obstacles[i].removeObstacle();
+            --i;
+        }
+        ;
+        this.PLAYER.removePlayer();
+        this.PLAYER = new PlayerShip_1.PlayerShip(this.app);
         this.distanceTraveled = 0;
         if (this.score > this.hiScore) {
             this.hiScore = this.score;
         }
         ;
         this.score = 0;
-        this.hiScoreInfo && (this.hiScoreInfo.innerHTML = 'HiScore: ' + JSON.stringify(this.hiScore));
     }
     ;
     gameLoop(app) {
+        App.ScoreText.text =
+            `Lives: ${this.PLAYER.livesLeft}    Score: ${this.score}    HiScore: ${this.hiScore}    Distance traveled: ${this.distanceTraveled}`;
         this.PARALLAX.updateBg();
         if (this.PLAYER.livesLeft < 1) {
             this.reset();
         }
         ;
         this.distanceTraveled++;
-        if (exports.keyssss["87"] === true && this.PLAYER.y > 30) { // W - UP
+        if (keyssss["87"] === true && this.PLAYER.y > 30) { // W - UP
             this.PLAYER.y -= this.PLAYER.movementSpeed;
         }
         ;
-        if (exports.keyssss["83"] === true && this.PLAYER.y < app.view.height - 30) { // S - DOWN
+        if (keyssss["83"] === true && this.PLAYER.y < app.view.height - 30) { // S - DOWN
             this.PLAYER.y += this.PLAYER.movementSpeed;
         }
         ;
-        if (exports.keyssss["65"] === true && this.PLAYER.x > 50) { // A - LEFT
+        if (keyssss["65"] === true && this.PLAYER.x > 50) { // A - LEFT
             this.PLAYER.x -= this.PLAYER.movementSpeed;
         }
         ;
-        if (exports.keyssss["68"] === true && this.PLAYER.x < app.view.width - 50) { // D - RIGHT
+        if (keyssss["68"] === true && this.PLAYER.x < app.view.width - 50) { // D - RIGHT
             this.PLAYER.x += this.PLAYER.movementSpeed;
         }
         ;
-        if (exports.keyssss["32"] === true) { // D - RIGHT
+        if (keyssss["32"] === true) { // D - RIGHT
             this.PLAYER.fire();
-            setTimeout(() => this.keyssss["32"] = false, 10);
+            setTimeout(() => keyssss["32"] = false, 10);
         }
         ;
         Enemy_1.Enemy.enemies.forEach(enemy => {
@@ -136,6 +152,7 @@ class App {
             ;
         });
         Enemy_1.Enemy.enemies.forEach(enemy => enemy.x -= enemy.movementSpeed);
+        Obstacle_1.Obstacle.obstacles.forEach(obstacle => obstacle.x -= obstacle.movementSpeed);
         Enemy_1.Enemy.enemies.forEach((enemy) => {
             if (this.collision(enemy, this.PLAYER)) {
                 this.PLAYER.livesLeft--;
@@ -144,13 +161,13 @@ class App {
             ;
         });
         Bullet_1.Bullet.bullets.forEach((bullet) => bullet.x += bullet.movementSpeed);
-        Bullet_1.Bullet.bullets.forEach((bullet, bulletIndex) => {
+        Bullet_1.Bullet.bullets.forEach((bullet) => {
             if (this.collision(bullet, this.PLAYER)) {
                 bullet.removeBullet();
                 this.PLAYER.livesLeft--;
             }
             ;
-            Enemy_1.Enemy.enemies.forEach((enemy, enemyIndex) => {
+            Enemy_1.Enemy.enemies.forEach((enemy) => {
                 if (this.collision(enemy, bullet)) {
                     bullet.removeBullet();
                     enemy.removeEnemy();
@@ -159,51 +176,30 @@ class App {
                 ;
             });
         });
-        this.livesInfo.innerHTML = 'Lives: ' + JSON.stringify(this.PLAYER.livesLeft);
-        this.scoreInfo.innerHTML = 'Score: ' + JSON.stringify(this.score);
-        this.distanceTraveledInfo.innerHTML = 'Distance traveled: ' + Math.ceil(this.distanceTraveled / 10);
-        this.bulletsInfo.innerHTML = 'Bullets: ' + Bullet_1.Bullet.bullets.map((bullet, index) => {
-            if (index > 6) {
-                return '...';
+        Obstacle_1.Obstacle.obstacles.forEach((obstacle) => {
+            if (this.collision(obstacle, this.PLAYER)) {
+                this.PLAYER.livesLeft = 0;
             }
-            return JSON.stringify({
-                X: bullet.x,
-                Y: Math.round(bullet.y)
-            });
+            ;
         });
-        if (this.enemiesInfo) {
-            this.enemiesInfo.innerHTML = 'Enemies: ' + Enemy_1.Enemy.enemies.map((enemy, index) => {
-                if (index > 6) {
-                    return '...';
-                }
-                return JSON.stringify({
-                    X: enemy.x,
-                    Y: Math.round(enemy.y)
-                });
-            });
-        }
-    }
-    ;
-    reportError(e) {
-        console.log('ERROR : ' + e.message);
-    }
-    ;
-    keysDown(e) {
-        exports.keyssss[`${e.keyCode}`] = true;
-    }
-    ;
-    keysUp(e) {
-        exports.keyssss[`${e.keyCode}`] = false;
+        app.stage.addChild(App.ScoreText);
     }
     ;
 }
 exports.App = App;
+App.ScoreText = new PIXI.Text("Score: ", {
+    fontSize: 35,
+    fill: "#aaff",
+    align: "center",
+    stroke: "#aaaaaa",
+    strokeThickness: 0,
+});
+;
 
-},{"./Models/Enemy/Enemy":2,"./Models/Other/Bullet":3,"./Models/Player/PlayerShip":4,"./Models/Types/BulletType":5,"./Parallax/Parallax":6}],2:[function(require,module,exports){
+},{"./Models/Enemy/Enemy":2,"./Models/Obstacle/Obstacle":3,"./Models/Other/Bullet":4,"./Models/Player/PlayerShip":5,"./Models/Types/BulletType":6,"./Parallax/Parallax":7}],2:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Enemy = void 0;
-// import { app } from '../../index';
 const Bullet_1 = require("../../Models/Other/Bullet");
 const BulletType_1 = require("../Types/BulletType");
 class Enemy {
@@ -291,11 +287,72 @@ Enemy.enemyShipsTypes = ["enemyLeft", "enemyLeft2", "enemyLeft3"];
 Enemy.enemies = [];
 ;
 
-},{"../../Models/Other/Bullet":3,"../Types/BulletType":5}],3:[function(require,module,exports){
+},{"../../Models/Other/Bullet":4,"../Types/BulletType":6}],3:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.Obstacle = void 0;
+class Obstacle {
+    constructor(app) {
+        this.app = app;
+        this._movementSpeed = 2;
+        this.obstacleType = `${Obstacle.obstacleTypes[Math.round(Math.random() * 2)]}`;
+        this.sprite = PIXI.Sprite.from(app.loader.resources[`${this.obstacleType}`].url);
+        this.sprite.scale.x = Math.random() * 1.4 + 0.2;
+        this.sprite.scale.y = Math.random() * 1.4 + 0.2;
+        this.sprite.x = app.view.width + this.sprite.width * this.sprite.scale.x / 2 + Math.random() * 100;
+        this.sprite.y = app.view.height - 45;
+        this.sprite.anchor.set(0.5);
+        Obstacle.obstacles.push(this);
+        app.stage.addChild(this.sprite);
+    }
+    ;
+    set x(value) {
+        this.sprite.x = value;
+        if (value < -this.sprite.width / 2) {
+            this.removeObstacle();
+        }
+        ;
+    }
+    ;
+    get x() {
+        return this.sprite.x;
+    }
+    ;
+    set y(value) {
+        this.sprite.y = value;
+    }
+    ;
+    get y() {
+        return this.sprite.y;
+    }
+    ;
+    set movementSpeed(value) {
+        this._movementSpeed = value;
+    }
+    ;
+    get movementSpeed() {
+        return this._movementSpeed;
+    }
+    ;
+    getBounds() {
+        return this.sprite.getBounds();
+    }
+    ;
+    removeObstacle() {
+        this.app.stage.removeChild(this.sprite);
+        Obstacle.obstacles.splice(Obstacle.obstacles.findIndex(obstacle => (obstacle.x === this.sprite.x) && (obstacle.y === this.sprite.y)), 1);
+    }
+    ;
+}
+exports.Obstacle = Obstacle;
+Obstacle.obstacleTypes = ["rock", "rock2", "rock3"];
+Obstacle.obstacles = [];
+;
+
+},{}],4:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Bullet = void 0;
-// import { app } from '../../index';
 const BulletType_1 = require("../Types/BulletType");
 class Bullet {
     constructor(ownerX, ownerY, origin, app) {
@@ -315,10 +372,8 @@ class Bullet {
     ;
     set x(value) {
         this.sprite.x = value;
-        if ((value > this.app.view.width - this.sprite.width / 2) || (value < 0)) {
+        if ((value > 10 + this.app.view.width - this.sprite.width / 2) || (value < -10)) {
             this.removeBullet();
-            // Bullet.bullets.filter(bullet => bullet.x === this.sprite.x);
-            // Bullet.bullets.splice(Bullet.bullets.findIndex(bullet => bullet.x === this.sprite.x), 1);
         }
         ;
     }
@@ -365,14 +420,12 @@ exports.Bullet = Bullet;
 Bullet.bullets = [];
 ;
 
-},{"../Types/BulletType":5}],4:[function(require,module,exports){
+},{"../Types/BulletType":6}],5:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.PlayerShip = void 0;
-// import { app } from '../../index';
 const Bullet_1 = require("../Other/Bullet");
 const BulletType_1 = require("../Types/BulletType");
-// import { App } from '../../App';
 class PlayerShip {
     constructor(app) {
         this.app = app;
@@ -384,7 +437,7 @@ class PlayerShip {
         this.sprite.x = this.sprite.width / 2;
         this.sprite.y = app.view.height / 2;
         this.sprite.anchor.set(0.5);
-        ++PlayerShip.shipsCreated;
+        ++PlayerShip.shipsCreated; // for later use
         app.stage.addChild(this.sprite);
     }
     ;
@@ -428,12 +481,16 @@ class PlayerShip {
         return new Bullet_1.Bullet(this.x + this.sprite.width / 2 + 1, this.y + 5, BulletType_1.BulletOrigin.player, this.app);
     }
     ;
+    removePlayer() {
+        this.app.stage.removeChild(this.sprite);
+    }
+    ;
 }
 exports.PlayerShip = PlayerShip;
 PlayerShip.shipsCreated = 0;
 ;
 
-},{"../Other/Bullet":3,"../Types/BulletType":5}],5:[function(require,module,exports){
+},{"../Other/Bullet":4,"../Types/BulletType":6}],6:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.BulletOrigin = void 0;
@@ -444,11 +501,10 @@ var BulletOrigin;
 })(BulletOrigin = exports.BulletOrigin || (exports.BulletOrigin = {}));
 ;
 
-},{}],6:[function(require,module,exports){
+},{}],7:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Parallax = void 0;
-// import { app } from '../index';
 class Parallax {
     constructor(textureBack, textureMiddle, textureFront, app) {
         this.app = app;
@@ -463,7 +519,7 @@ class Parallax {
         let tiling = new PIXI.extras.TilingSprite(texture, this.app.view.width, this.app.view.height);
         tiling.position.set(0, 0);
         tiling.tileScale.x = 2.5;
-        tiling.tileScale.y = 3.8;
+        tiling.tileScale.y = 5.0;
         this.app.stage.addChild(tiling);
         return tiling;
     }
@@ -480,16 +536,15 @@ class Parallax {
 exports.Parallax = Parallax;
 ;
 
-},{}],7:[function(require,module,exports){
+},{}],8:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const App_1 = require("./App");
 const app = new PIXI.Application({
-    width: 1050,
-    height: 600,
+    width: window.innerWidth - 15,
+    height: window.innerHeight - 25,
     backgroundColor: 0xAAFFFF,
 });
-let keyContainer = {};
 const game = new App_1.App(app);
 
-},{"./App":1}]},{},[7]);
+},{"./App":1}]},{},[8]);

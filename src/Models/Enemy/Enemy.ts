@@ -1,4 +1,3 @@
-// import { app } from '../../index';
 import { Bullet } from '../../Models/Other/Bullet';
 import { BulletOrigin } from '../Types/BulletType';
 export class Enemy {

@@ -1,31 +1,28 @@
-// import { app } from '../../index';
 import { BulletOrigin } from '../Types/BulletType';
 export class Bullet {
     public static bullets: Bullet[] = [];
     private sprite: PIXI.Sprite;
-    private _movementSpeed: number; 
+    private _movementSpeed: number;
     public _origin: BulletOrigin;
 
     public constructor(ownerX: number, ownerY: number, origin: BulletOrigin, public app: PIXI.Application) {
-        const bullet = (origin === BulletOrigin.player? "bulletRight" : "bulletLeft")
-        this.sprite = PIXI.Sprite.from(app.loader.resources[(origin === BulletOrigin.player)? "bulletRight" : "bulletLeft"].url);
+        const bullet = (origin === BulletOrigin.player ? "bulletRight" : "bulletLeft")
+        this.sprite = PIXI.Sprite.from(app.loader.resources[(origin === BulletOrigin.player) ? "bulletRight" : "bulletLeft"].url);
         this.sprite.x = ownerX;
         this.sprite.y = ownerY;
-        this.sprite.scale.x = ((origin === BulletOrigin.player)? 0.2 : -0.2);
+        this.sprite.scale.x = ((origin === BulletOrigin.player) ? 0.2 : -0.2);
         this.sprite.scale.y = 0.2;
         this.sprite.anchor.set(0.5);
         this.origin = origin;
-        this.movementSpeed = ((origin === BulletOrigin.player)? 20 : -10);
+        this.movementSpeed = ((origin === BulletOrigin.player) ? 20 : -10);
         Bullet.bullets.push(this);
         app.stage.addChild(this.sprite);
     };
 
     public set x(value: number) {
         this.sprite.x = value;
-        if ((value > this.app.view.width - this.sprite.width / 2) || (value < 0)) {
+        if ((value > 10 + this.app.view.width - this.sprite.width / 2) || (value < -10)) {
             this.removeBullet();
-            // Bullet.bullets.filter(bullet => bullet.x === this.sprite.x);
-            // Bullet.bullets.splice(Bullet.bullets.findIndex(bullet => bullet.x === this.sprite.x), 1);
         };
     };
     public get x(): number {
@@ -61,7 +58,7 @@ export class Bullet {
 
     public removeBullet(): void {
         this.app.stage.removeChild(this.sprite);
-        Bullet.bullets.splice(Bullet.bullets.findIndex(bullet => (bullet.x === this.sprite.x)&&(bullet.y === this.sprite.y)), 1);
+        Bullet.bullets.splice(Bullet.bullets.findIndex(bullet => (bullet.x === this.sprite.x) && (bullet.y === this.sprite.y)), 1);
     };
 
 };

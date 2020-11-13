@@ -1,7 +1,5 @@
-// import { app } from '../../index';
 import { Bullet } from '../Other/Bullet';
 import { BulletOrigin } from '../Types/BulletType';
-// import { App } from '../../App';
 export class PlayerShip {
 
     public static shipsCreated = 0;
@@ -16,7 +14,7 @@ export class PlayerShip {
         this.sprite.x = this.sprite.width / 2;
         this.sprite.y = app.view.height / 2;
         this.sprite.anchor.set(0.5);
-        ++PlayerShip.shipsCreated;
+        ++PlayerShip.shipsCreated; // for later use
         app.stage.addChild(this.sprite);
     };
 
@@ -55,5 +53,9 @@ export class PlayerShip {
 
     public fire(): Bullet {
         return new Bullet(this.x + this.sprite.width / 2 + 1, this.y + 5, BulletOrigin.player, this.app );
+    };
+
+    public removePlayer(): void {
+        this.app.stage.removeChild(this.sprite);
     };
 };
