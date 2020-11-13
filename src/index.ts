@@ -11,10 +11,10 @@ let distanceTraveled: number = 0;
 let hiScore: number = 0;
 const livesInfo: any = document.querySelector("#lives");
 const scoreInfo: any = document.querySelector("#score");
-// const bulletsInfo: any = document.querySelector("#bullets");
+const bulletsInfo: any = document.querySelector("#bullets");
 const distanceTraveledInfo: any = document.querySelector("#distanceTraveled");
 const playground: any = document.querySelector("#playground");
-// const enemiesInfo = document.querySelector("#enemies");
+const enemiesInfo = document.querySelector("#enemies");
 const hiScoreInfo = document.querySelector("#hiScore");
 hiScoreInfo && (hiScoreInfo.innerHTML = 'HiScore :' + 0);
 const keys: any = {};
@@ -97,8 +97,29 @@ const doneLoading = () => {
 
 
 const reset = () => {
-    Enemy.enemies.forEach(enemy => enemy.removeEnemy());
-    Bullet.bullets.forEach(bullet => bullet.removeBullet());
+    // Enemy.enemies.forEach((enemy) => enemy.removeEnemy());
+    // Bullet.bullets.forEach(bullet => bullet.removeBullet());
+
+    for (let i = 0; i < Enemy.enemies.length; ++i) {
+        Enemy.enemies[i].removeEnemy();
+        --i;
+    };
+    for (let i = 0; i < Bullet.bullets.length; ++i) {
+        Bullet.bullets[i].removeBullet();
+        --i;
+    }
+    // Enemy.enemies = [];
+    // Bullet.bullets = [];
+    // while (app.stage.children.length > 0) {
+    //     const child = app.stage.getChildAt(0);
+    //     // console.log('child' + JSON.stringify(child));
+
+    //     app.stage.removeChild(child);
+    // }
+    // bgBack = createBg(app.loader.resources["farground"].texture);
+    // bgMiddle = createBg(app.loader.resources["midground"].texture);
+    // bgFront = createBg(app.loader.resources["foreground"].texture);
+    // PLAYER = new PlayerShip();
     PLAYER.livesLeft = 3;
     distanceTraveled = 0;
     if (score > hiScore) {
@@ -158,11 +179,9 @@ function gameLoop() {
     });
     Enemy.enemies.forEach(enemy => enemy.x -= enemy.movementSpeed);
 
-    Enemy.enemies.forEach((enemy, index) => {
+    Enemy.enemies.forEach((enemy) => {
         if (collision(enemy, PLAYER)) {
             PLAYER.livesLeft--;
-            // console.log('collision');
-            // app.stage.removeChild(enemy); // THIS DOESN'T WORK!!!???
             enemy.removeEnemy();
         };
     });
@@ -174,9 +193,7 @@ function gameLoop() {
         };
         Enemy.enemies.forEach((enemy, enemyIndex) => {
             if (collision(enemy, bullet)) {
-                // Bullet.bullets.splice(bulletIndex, 1); 
                 bullet.removeBullet();
-                // Enemy.enemies.splice(enemyIndex, 1);
                 enemy.removeEnemy();
                 score++;
             };
@@ -187,27 +204,27 @@ function gameLoop() {
     livesInfo.innerHTML = 'Lives: ' + JSON.stringify(PLAYER.livesLeft);
     scoreInfo.innerHTML = 'Score: ' + JSON.stringify(score);
     distanceTraveledInfo.innerHTML = 'Distance traveled: ' + Math.ceil(distanceTraveled / 10);
-    // bulletsInfo.innerHTML = 'Bullets: ' + Bullet.bullets.map((bullet, index) => {
-    //     if (index > 6) {
-    //         return '...';
-    //     }
-    //     return JSON.stringify({
-    //         X: bullet.x,
-    //         Y: Math.round(bullet.y)
-    //     })
-    // });
+    bulletsInfo.innerHTML = 'Bullets: ' + Bullet.bullets.map((bullet, index) => {
+        if (index > 6) {
+            return '...';
+        }
+        return JSON.stringify({
+            X: bullet.x,
+            Y: Math.round(bullet.y)
+        })
+    });
 
-    // if (enemiesInfo) {
-    //     enemiesInfo.innerHTML = 'Enemies: ' + Enemy.enemies.map((enemy, index) => {
-    //         if (index > 6) {
-    //             return '...';
-    //         }
-    //         return JSON.stringify({
-    //             X: enemy.x,
-    //             Y: Math.round(enemy.y)
-    //         })
-    //     });
-    // }
+    if (enemiesInfo) {
+        enemiesInfo.innerHTML = 'Enemies: ' + Enemy.enemies.map((enemy, index) => {
+            if (index > 6) {
+                return '...';
+            }
+            return JSON.stringify({
+                X: enemy.x,
+                Y: Math.round(enemy.y)
+            })
+        });
+    }
 
 
 };

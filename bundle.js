@@ -174,34 +174,31 @@ class PlayerShip {
         this._livesLeft = 3;
         this._movementSpeed = 5;
         this.sprite = PIXI.Sprite.from(index_1.app.loader.resources.shipRight.url);
-        // this.sprite = PIXI.Sprite.from('/src/images/shipRight.png'); 
-        // this.printer(app.loader.resources);
         this.sprite.scale.x = 0.1;
         this.sprite.scale.y = 0.1;
         this.sprite.x = this.sprite.width / 2;
         this.sprite.y = index_1.app.view.height / 2;
         this.sprite.anchor.set(0.5);
         ++PlayerShip.shipsCreated;
-        // this.livesLeft = 3;
-        // console.log(this.sprite.texture);
-        // this.sprite.y = GameApp.GroundPosition;
-        // this.sprite.animationSpeed = 0.05;
-        // this.sprite.play();
         index_1.app.stage.addChild(this.sprite);
-        // GameApp.Stage.addChild(this.sprite);
     }
+    ;
     set x(value) {
         this.sprite.x = value;
     }
+    ;
     get x() {
         return this.sprite.x;
     }
+    ;
     set y(value) {
         this.sprite.y = value;
     }
+    ;
     get y() {
         return this.sprite.y;
     }
+    ;
     get movementSpeed() {
         return this._movementSpeed;
     }
@@ -262,7 +259,6 @@ const distanceTraveledInfo = document.querySelector("#distanceTraveled");
 const playground = document.querySelector("#playground");
 const enemiesInfo = document.querySelector("#enemies");
 const hiScoreInfo = document.querySelector("#hiScore");
-const resumeButton = document.querySelector("#resume-button");
 hiScoreInfo && (hiScoreInfo.innerHTML = 'HiScore :' + 0);
 const keys = {};
 let PLAYER;
@@ -326,8 +322,28 @@ const doneLoading = () => {
     exports.app.ticker.add(gameLoop);
 };
 const reset = () => {
-    Enemy_1.Enemy.enemies.forEach(enemy => enemy.removeEnemy());
-    Bullet_1.Bullet.bullets.forEach(bullet => bullet.removeBullet());
+    // Enemy.enemies.forEach((enemy) => enemy.removeEnemy());
+    // Bullet.bullets.forEach(bullet => bullet.removeBullet());
+    for (let i = 0; i < Enemy_1.Enemy.enemies.length; ++i) {
+        Enemy_1.Enemy.enemies[i].removeEnemy();
+        --i;
+    }
+    ;
+    for (let i = 0; i < Bullet_1.Bullet.bullets.length; ++i) {
+        Bullet_1.Bullet.bullets[i].removeBullet();
+        --i;
+    }
+    // Enemy.enemies = [];
+    // Bullet.bullets = [];
+    // while (app.stage.children.length > 0) {
+    //     const child = app.stage.getChildAt(0);
+    //     // console.log('child' + JSON.stringify(child));
+    //     app.stage.removeChild(child);
+    // }
+    // bgBack = createBg(app.loader.resources["farground"].texture);
+    // bgMiddle = createBg(app.loader.resources["midground"].texture);
+    // bgFront = createBg(app.loader.resources["foreground"].texture);
+    // PLAYER = new PlayerShip();
     PLAYER.livesLeft = 3;
     distanceTraveled = 0;
     if (score > hiScore) {
@@ -387,11 +403,9 @@ function gameLoop() {
         ;
     });
     Enemy_1.Enemy.enemies.forEach(enemy => enemy.x -= enemy.movementSpeed);
-    Enemy_1.Enemy.enemies.forEach((enemy, index) => {
+    Enemy_1.Enemy.enemies.forEach((enemy) => {
         if (collision(enemy, PLAYER)) {
             PLAYER.livesLeft--;
-            // console.log('collision');
-            // app.stage.removeChild(enemy); // THIS DOESN'T WORK!!!???
             enemy.removeEnemy();
         }
         ;
@@ -405,9 +419,7 @@ function gameLoop() {
         ;
         Enemy_1.Enemy.enemies.forEach((enemy, enemyIndex) => {
             if (collision(enemy, bullet)) {
-                // Bullet.bullets.splice(bulletIndex, 1); 
                 bullet.removeBullet();
-                // Enemy.enemies.splice(enemyIndex, 1);
                 enemy.removeEnemy();
                 score++;
             }

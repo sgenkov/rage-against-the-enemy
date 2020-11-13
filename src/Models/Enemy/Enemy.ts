@@ -1,4 +1,3 @@
-import { loadavg } from 'os';
 import { app } from '../../index';
 import { Bullet } from '../../Models/Other/Bullet';
 import { BulletOrigin } from '../Types/BulletType';
