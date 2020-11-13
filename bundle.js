@@ -292,7 +292,6 @@ const livesInfo = document.querySelector("#lives");
 const scoreInfo = document.querySelector("#score");
 const bulletsInfo = document.querySelector("#bullets");
 const distanceTraveledInfo = document.querySelector("#distanceTraveled");
-const playground = document.querySelector("#playground");
 const enemiesInfo = document.querySelector("#enemies");
 const hiScoreInfo = document.querySelector("#hiScore");
 hiScoreInfo && (hiScoreInfo.innerHTML = 'HiScore :' + 0);
@@ -307,14 +306,10 @@ function collision(a, b) {
         return false;
     }
     ;
-    //  console.log('abox :', typeof a);
-    //  console.log('bbox :', typeof b);
     if (aBox.x + aBox.width > bBox.x
         && aBox.x < bBox.x + bBox.width
         && aBox.y + aBox.height > bBox.y
         && aBox.y < bBox.y + bBox.height) {
-        // console.log('aBox : ' + JSON.stringify(typeof aBox));
-        // console.log('bBox : ' + JSON.stringify(typeof bBox));
         return true;
     }
     else {
@@ -332,8 +327,6 @@ const doneLoading = () => {
     exports.app.ticker.add(gameLoop);
 };
 const reset = () => {
-    // Enemy.enemies.forEach((enemy) => enemy.removeEnemy());
-    // Bullet.bullets.forEach(bullet => bullet.removeBullet());
     for (let i = 0; i < Enemy_1.Enemy.enemies.length; ++i) {
         Enemy_1.Enemy.enemies[i].removeEnemy();
         --i;
@@ -344,17 +337,6 @@ const reset = () => {
         --i;
     }
     ;
-    // Enemy.enemies = [];
-    // Bullet.bullets = [];
-    // while (app.stage.children.length > 0) {
-    //     const child = app.stage.getChildAt(0);
-    //     // console.log('child' + JSON.stringify(child));
-    //     app.stage.removeChild(child);
-    // }
-    // bgBack = createBg(app.loader.resources["farground"].texture);
-    // bgMiddle = createBg(app.loader.resources["midground"].texture);
-    // bgFront = createBg(app.loader.resources["foreground"].texture);
-    // PLAYER = new PlayerShip();
     PLAYER.livesLeft = 3;
     distanceTraveled = 0;
     if (score > hiScore) {
@@ -365,26 +347,14 @@ const reset = () => {
     hiScoreInfo && (hiScoreInfo.innerHTML = 'HiScore: ' + JSON.stringify(hiScore));
 };
 function gameLoop() {
-    // if ( Math.ceil(distanceTraveled / 10 ) > 100) {
-    //     Enemy.movementSpeed ++;
-    // }
     PARALLAX.updateBg();
     if (PLAYER.livesLeft < 1) {
         reset();
     }
     ;
     ++distanceTraveled;
-    // let accel;
     if (keys["87"] && PLAYER.y > 30) { // W - UP
         PLAYER.y -= PLAYER.movementSpeed;
-        // let accel = setInterval(() => {
-        //     if (PLAYER.y > 50) {
-        //         PLAYER.y -= 2
-        //     }
-        //     if (!keys["87"]) {
-        //         clearInterval(accel);
-        //     }
-        // }, 50)
     }
     ;
     if (keys["83"] && PLAYER.y < exports.app.view.height - 30) { // S - DOWN
@@ -465,11 +435,9 @@ const reportError = (e) => {
 };
 const keysDown = (e) => {
     keys[e.keyCode] = true;
-    // keysInfo.innerHTML = 'Keys :' + JSON.stringify(keys);
 };
 const keysUp = (e) => {
     keys[e.keyCode] = false;
-    // keysInfo.innerHTML = 'Keys :' + JSON.stringify(keys);
 };
 exports.app = new PIXI.Application({
     width: 1050,
@@ -496,15 +464,6 @@ exports.app.loader.load();
 exports.app.stage.interactive = true;
 document.addEventListener("keydown", keysDown);
 document.addEventListener("keyup", keysUp);
-// keysInfo.innerHTML = JSON.stringify(keys);
 document.body.addEventListener("pointerdown", () => PLAYER.fire());
-// const app = PIXI.autoDetectRenderer(222, 222, { backgroundColor: 0xa1c2c4 })
-// console.log(PIXI);
-// const renderer = PIXI.autoDetectRenderer(222, 222, { backgroundColor: 0xa1c2c4 });
-// document.body.appendChild(renderer.view);
-// const stage = new PIXI.Container();
-// stage.interactive = true;
-// stage.hitArea = new PIXI.Rectangle(0, 0, 1000, 1000);
-// renderer.render(stage);
 
 },{"./Models/Enemy/Enemy":1,"./Models/Other/Bullet":2,"./Models/Player/PlayerShip":3,"./Models/Types/BulletType":4,"./Parallax/Parallax":5}]},{},[6]);

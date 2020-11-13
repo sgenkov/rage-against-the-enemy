@@ -4,14 +4,14 @@ export class Parallax {
     private backgroungMiddle: PIXI.extras.TilingSprite;
     private backgroungFore: PIXI.extras.TilingSprite;
     private positionX: number = 0;
-    private scrollSpeed = 1;
+    public scrollSpeed = 1;
 
     constructor(textureBack: string, textureMiddle: string, textureFront: string) {
         this.backgroundFar = this.createBg(app.loader.resources[`${textureBack}`].texture);
         this.backgroungMiddle = this.createBg(app.loader.resources[`${textureMiddle}`].texture);
         this.backgroungFore = this.createBg(app.loader.resources[`${textureFront}`].texture);
     };
-    public createBg(texture: any) {
+    private createBg(texture: any) {
 
         let tiling: PIXI.extras.TilingSprite = new PIXI.extras.TilingSprite(texture, app.view.width, app.view.height);
 
