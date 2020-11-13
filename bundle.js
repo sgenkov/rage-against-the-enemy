@@ -89,7 +89,7 @@ Enemy.enemyShipsTypes = ["enemyLeft", "enemyLeft2", "enemyLeft3"];
 Enemy.enemies = [];
 ;
 
-},{"../../Models/Other/Bullet":2,"../../index":5,"../Types/BulletType":4}],2:[function(require,module,exports){
+},{"../../Models/Other/Bullet":2,"../../index":6,"../Types/BulletType":4}],2:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Bullet = void 0;
@@ -162,7 +162,7 @@ exports.Bullet = Bullet;
 Bullet.bullets = [];
 ;
 
-},{"../../index":5,"../Types/BulletType":4}],3:[function(require,module,exports){
+},{"../../index":6,"../Types/BulletType":4}],3:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.PlayerShip = void 0;
@@ -228,7 +228,7 @@ exports.PlayerShip = PlayerShip;
 PlayerShip.shipsCreated = 0;
 ;
 
-},{"../../index":5,"../Other/Bullet":2,"../Types/BulletType":4}],4:[function(require,module,exports){
+},{"../../index":6,"../Other/Bullet":2,"../Types/BulletType":4}],4:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.BulletOrigin = void 0;
@@ -242,12 +242,48 @@ var BulletOrigin;
 },{}],5:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.Parallax = void 0;
+const index_1 = require("../index");
+class Parallax {
+    constructor(textureBack, textureMiddle, textureFront) {
+        this.positionX = 0;
+        this.scrollSpeed = 1;
+        this.backgroundFar = this.createBg(index_1.app.loader.resources[`${textureBack}`].texture);
+        this.backgroungMiddle = this.createBg(index_1.app.loader.resources[`${textureMiddle}`].texture);
+        this.backgroungFore = this.createBg(index_1.app.loader.resources[`${textureFront}`].texture);
+    }
+    ;
+    createBg(texture) {
+        let tiling = new PIXI.extras.TilingSprite(texture, index_1.app.view.width, index_1.app.view.height);
+        tiling.position.set(0, 0);
+        tiling.tileScale.x = 2.5;
+        tiling.tileScale.y = 3.8;
+        index_1.app.stage.addChild(tiling);
+        return tiling;
+    }
+    ;
+    updateBg() {
+        this.positionX += this.scrollSpeed;
+        this.positionX += 1;
+        this.backgroungFore.tilePosition.x = -this.positionX;
+        this.backgroungMiddle.tilePosition.x = -this.positionX / 2;
+        this.backgroundFar.tilePosition.x = -this.positionX / 4;
+    }
+    ;
+}
+exports.Parallax = Parallax;
+;
+
+},{"../index":6}],6:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 exports.app = void 0;
 // import * as PIXI from 'pixi.js';
 // import PIXI from 'pixi.js';
 const PlayerShip_1 = require("./Models/Player/PlayerShip");
 const Enemy_1 = require("./Models/Enemy/Enemy");
 const Bullet_1 = require("./Models/Other/Bullet");
+const Parallax_1 = require("./Parallax/Parallax");
 const BulletType_1 = require("./Models/Types/BulletType");
 let score = 0;
 let distanceTraveled = 0;
@@ -262,29 +298,7 @@ const hiScoreInfo = document.querySelector("#hiScore");
 hiScoreInfo && (hiScoreInfo.innerHTML = 'HiScore :' + 0);
 const keys = {};
 let PLAYER;
-// PARALLAX ==================================================================================V
-let bgBack;
-let bgMiddle;
-let bgFront;
-let bgX = 0;
-let bgSpeed = 1;
-function createBg(texture) {
-    let tiling = new PIXI.extras.TilingSprite(texture, exports.app.view.width, exports.app.view.height);
-    tiling.position.set(0, 0);
-    tiling.tileScale.x = 2.5;
-    tiling.tileScale.y = 3.8;
-    exports.app.stage.addChild(tiling);
-    return tiling;
-}
-;
-function updateBg() {
-    bgX = (bgX + bgSpeed);
-    bgX++;
-    bgFront.tilePosition.x = -bgX;
-    bgMiddle.tilePosition.x = -bgX / 2;
-    bgBack.tilePosition.x = -bgX / 4;
-}
-// PARALLAX ==================================================================================^
+let PARALLAX;
 function collision(a, b) {
     const aBox = a.getBounds();
     const bBox = b.getBounds();
@@ -312,11 +326,7 @@ const showProgress = (e) => {
     console.log(e.progress);
 };
 const doneLoading = () => {
-    // PARALLAX ==================================================================================V
-    bgBack = createBg(exports.app.loader.resources["farground"].texture);
-    bgMiddle = createBg(exports.app.loader.resources["midground"].texture);
-    bgFront = createBg(exports.app.loader.resources["foreground"].texture);
-    // PARALLAX ==================================================================================^
+    PARALLAX = new Parallax_1.Parallax("farground", "midground", "foreground");
     PLAYER = new PlayerShip_1.PlayerShip();
     setInterval(() => new Enemy_1.Enemy(), 1200);
     exports.app.ticker.add(gameLoop);
@@ -333,6 +343,7 @@ const reset = () => {
         Bullet_1.Bullet.bullets[i].removeBullet();
         --i;
     }
+    ;
     // Enemy.enemies = [];
     // Bullet.bullets = [];
     // while (app.stage.children.length > 0) {
@@ -357,9 +368,7 @@ function gameLoop() {
     // if ( Math.ceil(distanceTraveled / 10 ) > 100) {
     //     Enemy.movementSpeed ++;
     // }
-    // PARALLAX ==================================================================================V
-    updateBg();
-    // PARALLAX ==================================================================================^
+    PARALLAX.updateBg();
     if (PLAYER.livesLeft < 1) {
         reset();
     }
@@ -498,4 +507,4 @@ document.body.addEventListener("pointerdown", () => PLAYER.fire());
 // stage.hitArea = new PIXI.Rectangle(0, 0, 1000, 1000);
 // renderer.render(stage);
 
-},{"./Models/Enemy/Enemy":1,"./Models/Other/Bullet":2,"./Models/Player/PlayerShip":3,"./Models/Types/BulletType":4}]},{},[5]);
+},{"./Models/Enemy/Enemy":1,"./Models/Other/Bullet":2,"./Models/Player/PlayerShip":3,"./Models/Types/BulletType":4,"./Parallax/Parallax":5}]},{},[6]);

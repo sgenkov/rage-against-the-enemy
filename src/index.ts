@@ -19,39 +19,8 @@ const hiScoreInfo = document.querySelector("#hiScore");
 hiScoreInfo && (hiScoreInfo.innerHTML = 'HiScore :' + 0);
 const keys: any = {};
 let PLAYER: PlayerShip;
+let PARALLAX: Parallax;
 
-// PARALLAX ==================================================================================V
-let bgBack: any;
-let bgMiddle: any;
-let bgFront: any;
-let bgX = 0;
-let bgSpeed = 1;
-function createBg(texture: any) {
-
-    let tiling: PIXI.extras.TilingSprite = new PIXI.extras.TilingSprite(texture, app.view.width, app.view.height);
-
-    tiling.position.set(0, 0);
-    tiling.tileScale.x = 2.5;
-    tiling.tileScale.y = 3.8;
-    app.stage.addChild(tiling);
-
-    return tiling;
-};
-
-function updateBg() {
-    bgX = (bgX + bgSpeed);
-    bgX++;
-    bgFront.tilePosition.x = -bgX;
-    bgMiddle.tilePosition.x = -bgX / 2;
-    bgBack.tilePosition.x = -bgX / 4;
-
-}
-
-
-
-
-
-// PARALLAX ==================================================================================^
 function collision(a: any, b: any) { //function collision(a: Enemy, b: PlayerShip) { // ADD SOME INTERFACE FOR Enemy and Player calsses
     const aBox = a.getBounds();
     const bBox = b.getBounds();
@@ -79,14 +48,9 @@ const showProgress = (e: any) => {
 };
 
 const doneLoading = () => {
-    // PARALLAX ==================================================================================V
-    bgBack = createBg(app.loader.resources["farground"].texture);
-    bgMiddle = createBg(app.loader.resources["midground"].texture);
-    bgFront = createBg(app.loader.resources["foreground"].texture);
-
-
-    // PARALLAX ==================================================================================^
+    PARALLAX = new Parallax("farground","midground","foreground");
     PLAYER = new PlayerShip();
+
     setInterval(() => new Enemy(), 1200);
 
 
@@ -107,7 +71,7 @@ const reset = () => {
     for (let i = 0; i < Bullet.bullets.length; ++i) {
         Bullet.bullets[i].removeBullet();
         --i;
-    }
+    };
     // Enemy.enemies = [];
     // Bullet.bullets = [];
     // while (app.stage.children.length > 0) {
@@ -132,12 +96,7 @@ function gameLoop() {
     // if ( Math.ceil(distanceTraveled / 10 ) > 100) {
     //     Enemy.movementSpeed ++;
     // }
-
-    // PARALLAX ==================================================================================V
-    updateBg();
-
-    // PARALLAX ==================================================================================^
-
+    PARALLAX.updateBg();
     if (PLAYER.livesLeft < 1) {
         reset();
     };
