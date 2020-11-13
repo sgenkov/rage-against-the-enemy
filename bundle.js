@@ -7,13 +7,15 @@ const Bullet_1 = require("../../Models/Other/Bullet");
 const BulletType_1 = require("../Types/BulletType");
 class Enemy {
     constructor() {
-        this.sprite = PIXI.Sprite.from(index_1.app.loader.resources[`${Enemy.enemyShipsTypes[Math.round(Math.random() * 2)]}`].url);
+        this._movementSpeed = 1;
+        this.shipType = `${Enemy.enemyShipsTypes[Math.round(Math.random() * 2)]}`;
+        this.sprite = PIXI.Sprite.from(index_1.app.loader.resources[`${this.shipType}`].url);
         this.sprite.scale.x = -0.1;
         this.sprite.scale.y = 0.1;
         this.sprite.x = index_1.app.view.width - this.sprite.width / 2;
-        // this.sprite.y = Math.random() * app.view.height + this.sprite.height/2; 
         this.sprite.y = Math.random() * (index_1.app.view.height - 45) + 20;
         this.sprite.anchor.set(0.5);
+        this.movementSpeed = this.setSpeed();
         Enemy.generatedEnemies++;
         Enemy.enemies.push(this);
         index_1.app.stage.addChild(this.sprite);
@@ -21,9 +23,8 @@ class Enemy {
     ;
     set x(value) {
         this.sprite.x = value;
-        if (value < this.sprite.width / 2) {
+        if (value < -this.sprite.width / 2) {
             this.removeEnemy();
-            // Enemy.enemies.splice(Enemy.enemies.findIndex(enemy => enemy.x === this.sprite.x), 1);
         }
         ;
     }
@@ -40,12 +41,14 @@ class Enemy {
         return this.sprite.y;
     }
     ;
-    // public set movementSpeed(value: number) {
-    //     Enemy._movementSpeed += value;
-    // };
-    // public get movementSpeed(): number {
-    //     return Enemy._movementSpeed;
-    // };
+    set movementSpeed(value) {
+        this._movementSpeed = value;
+    }
+    ;
+    get movementSpeed() {
+        return this._movementSpeed;
+    }
+    ;
     getBounds() {
         return this.sprite.getBounds();
     }
@@ -53,12 +56,30 @@ class Enemy {
     removeEnemy() {
         index_1.app.stage.removeChild(this.sprite);
         Enemy.enemies.splice(Enemy.enemies.findIndex(enemy => (enemy.x === this.sprite.x) && (enemy.y === this.sprite.y)), 1);
-        // Bullet.bullets.splice(Bullet.bullets.findIndex(bullet => (bullet.x === this.sprite.x)&&(bullet.y === this.sprite.y)), 1);
-        // Enemy.enemies = Enemy.enemies.filter(enemy => enemy.x !== this.sprite.x);
     }
     ;
     fire() {
-        return new Bullet_1.Bullet((this.x - this.sprite.width / 2 - 8), this.y + 5, BulletType_1.BulletOrigin.enemy);
+        return (new Bullet_1.Bullet((this.x - this.sprite.width / 2 - ((this.movementSpeed > 2)
+            ? 9
+            : 8)), this.y + 5, BulletType_1.BulletOrigin.enemy));
+    }
+    ;
+    setSpeed() {
+        let res;
+        switch (this.shipType) {
+            case "enemyLeft":
+                res = 1;
+                return res;
+            case "enemyLeft2":
+                res = 2;
+                return res;
+            case "enemyLeft3":
+                res = 3;
+                return res;
+            default:
+                return 1;
+        }
+        ;
     }
     ;
 }
@@ -66,7 +87,6 @@ exports.Enemy = Enemy;
 Enemy.generatedEnemies = 0;
 Enemy.enemyShipsTypes = ["enemyLeft", "enemyLeft2", "enemyLeft3"];
 Enemy.enemies = [];
-Enemy.movementSpeed = 1;
 ;
 
 },{"../../Models/Other/Bullet":2,"../../index":5,"../Types/BulletType":4}],2:[function(require,module,exports){
@@ -237,10 +257,10 @@ let distanceTraveled = 0;
 let hiScore = 0;
 const livesInfo = document.querySelector("#lives");
 const scoreInfo = document.querySelector("#score");
-// const bulletsInfo: any = document.querySelector("#bullets");
+const bulletsInfo = document.querySelector("#bullets");
 const distanceTraveledInfo = document.querySelector("#distanceTraveled");
 const playground = document.querySelector("#playground");
-// const enemiesInfo = document.querySelector("#enemies");
+const enemiesInfo = document.querySelector("#enemies");
 const hiScoreInfo = document.querySelector("#hiScore");
 const resumeButton = document.querySelector("#resume-button");
 hiScoreInfo && (hiScoreInfo.innerHTML = 'HiScore :' + 0);
@@ -366,7 +386,7 @@ function gameLoop() {
         }
         ;
     });
-    Enemy_1.Enemy.enemies.forEach(enemy => enemy.x -= Enemy_1.Enemy.movementSpeed);
+    Enemy_1.Enemy.enemies.forEach(enemy => enemy.x -= enemy.movementSpeed);
     Enemy_1.Enemy.enemies.forEach((enemy, index) => {
         if (collision(enemy, PLAYER)) {
             PLAYER.livesLeft--;
@@ -397,26 +417,26 @@ function gameLoop() {
     livesInfo.innerHTML = 'Lives: ' + JSON.stringify(PLAYER.livesLeft);
     scoreInfo.innerHTML = 'Score: ' + JSON.stringify(score);
     distanceTraveledInfo.innerHTML = 'Distance traveled: ' + Math.ceil(distanceTraveled / 10);
-    // bulletsInfo.innerHTML = 'Bullets: ' + Bullet.bullets.map((bullet, index) => { // delete this row on production
-    //     if (index > 6) {
-    //         return '...';
-    //     }
-    //     return JSON.stringify({
-    //         X: bullet.x,
-    //         Y: Math.round(bullet.y)
-    //     })
-    // });
-    // if (enemiesInfo) {
-    //     enemiesInfo.innerHTML = 'Enemies: ' + Enemy.enemies.map((enemy, index) => {
-    //         if (index > 6) {
-    //             return '...';
-    //         }
-    //         return JSON.stringify({
-    //             X: enemy.x,
-    //             Y: Math.round(enemy.y)
-    //         })
-    //     });
-    // }
+    bulletsInfo.innerHTML = 'Bullets: ' + Bullet_1.Bullet.bullets.map((bullet, index) => {
+        if (index > 6) {
+            return '...';
+        }
+        return JSON.stringify({
+            X: bullet.x,
+            Y: Math.round(bullet.y)
+        });
+    });
+    if (enemiesInfo) {
+        enemiesInfo.innerHTML = 'Enemies: ' + Enemy_1.Enemy.enemies.map((enemy, index) => {
+            if (index > 6) {
+                return '...';
+            }
+            return JSON.stringify({
+                X: enemy.x,
+                Y: Math.round(enemy.y)
+            });
+        });
+    }
 }
 ;
 const reportError = (e) => {
