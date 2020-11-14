@@ -3,14 +3,14 @@ export class Parallax {
     private backgroungMiddle: PIXI.extras.TilingSprite;
     private backgroungFore: PIXI.extras.TilingSprite;
     private positionX: number = 0;
-    public scrollSpeed = 1;
+    public scrollSpeed = 2;
 
     constructor(textureBack: string, textureMiddle: string, textureFront: string, public app: PIXI.Application) {
-        this.backgroundFar = this.createBg(app.loader.resources[`${textureBack}`].texture);
-        this.backgroungMiddle = this.createBg(app.loader.resources[`${textureMiddle}`].texture);
-        this.backgroungFore = this.createBg(app.loader.resources[`${textureFront}`].texture);
+        this.backgroundFar = this.createBackground(app.loader.resources[`${textureBack}`].texture);
+        this.backgroungMiddle = this.createBackground(app.loader.resources[`${textureMiddle}`].texture);
+        this.backgroungFore = this.createBackground(app.loader.resources[`${textureFront}`].texture);
     };
-    private createBg(texture: any) {
+    private createBackground(texture: any): PIXI.extras.TilingSprite {
 
         let tiling: PIXI.extras.TilingSprite = new PIXI.extras.TilingSprite(texture, this.app.view.width, this.app.view.height);
 
@@ -22,9 +22,8 @@ export class Parallax {
         return tiling;
     };
 
-    public updateBg() {
+    public updateBackground() {
         this.positionX +=  this.scrollSpeed;
-        this.positionX += 1;
         this.backgroungFore.tilePosition.x = -this.positionX;
         this.backgroungMiddle.tilePosition.x = -this.positionX / 2;
         this.backgroundFar.tilePosition.x = -this.positionX / 4;

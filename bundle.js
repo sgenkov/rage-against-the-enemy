@@ -8,23 +8,22 @@ const Parallax_1 = require("./Parallax/Parallax");
 const Bullet_1 = require("./Models/Other/Bullet");
 const Obstacle_1 = require("./Models/Obstacle/Obstacle");
 const BulletType_1 = require("./Models/Types/BulletType");
-let keyssss = {};
 class App {
     constructor(app) {
         this.app = app;
         this.score = 0;
         this.distanceTraveled = 0;
         this.hiScore = 0;
-        this.keyssss = {};
-        this.createApp();
+        this.keysPressed = {};
+        this.loadAssets();
         document.body.appendChild(this.app.view);
-        document.addEventListener("keydown", this.keysDown);
-        document.addEventListener("keyup", this.keysUp);
+        document.addEventListener("keydown", this.keysDown.bind(this));
+        document.addEventListener("keyup", this.keysUp.bind(this));
         document.body.addEventListener("pointerdown", () => this.PLAYER.fire());
-        App.ScoreText.position.y = app.view.height - App.ScoreText.height;
+        App.InfoText.position.y = app.view.height - App.InfoText.height;
     }
     ;
-    createApp() {
+    loadAssets() {
         this.app.loader.baseUrl = "../src/assets";
         this.app.loader
             .add("shipRight", "Ships/shipRight.png")
@@ -73,35 +72,30 @@ class App {
     }
     ;
     keysDown(e) {
-        keyssss[`${e.keyCode}`] = true;
+        this.keysPressed[`${e.keyCode}`] = true;
     }
     ;
     keysUp(e) {
-        keyssss[`${e.keyCode}`] = false;
+        this.keysPressed[`${e.keyCode}`] = false;
     }
     ;
     doneLoading(app) {
         this.PARALLAX = new Parallax_1.Parallax("farground", "midground", "foreground", app);
         this.PLAYER = new PlayerShip_1.PlayerShip(app);
-        setInterval(() => new Enemy_1.Enemy(app), 1200);
-        setInterval(() => new Obstacle_1.Obstacle(app), 4950);
         app.ticker.add(() => this.gameLoop(app));
     }
     ;
     reset() {
-        for (let i = 0; i < Enemy_1.Enemy.enemies.length; ++i) {
-            Enemy_1.Enemy.enemies[i].removeEnemy();
-            --i;
+        while (Enemy_1.Enemy.enemies.length > 0) {
+            Enemy_1.Enemy.enemies[0].removeEnemy();
         }
         ;
-        for (let i = 0; i < Bullet_1.Bullet.bullets.length; ++i) {
-            Bullet_1.Bullet.bullets[i].removeBullet();
-            --i;
+        while (Bullet_1.Bullet.bullets.length > 0) {
+            Bullet_1.Bullet.bullets[0].removeBullet();
         }
         ;
-        for (let i = 0; i < Obstacle_1.Obstacle.obstacles.length; ++i) {
-            Obstacle_1.Obstacle.obstacles[i].removeObstacle();
-            --i;
+        while (Obstacle_1.Obstacle.obstacles.length > 0) {
+            Obstacle_1.Obstacle.obstacles[0].removeObstacle();
         }
         ;
         this.PLAYER.removePlayer();
@@ -115,35 +109,39 @@ class App {
     }
     ;
     gameLoop(app) {
-        App.ScoreText.text =
+        App.InfoText.text =
             `Lives: ${this.PLAYER.livesLeft}    Score: ${this.score}    HiScore: ${this.hiScore}    Distance traveled: ${this.distanceTraveled}`;
-        this.PARALLAX.updateBg();
+        this.PARALLAX.updateBackground();
         if (this.PLAYER.livesLeft < 1) {
             this.reset();
         }
         ;
         this.distanceTraveled++;
-        if (keyssss["87"] === true && this.PLAYER.y > 30) { // W - UP
+        if (this.keysPressed["87"] === true && this.PLAYER.y > 30) { // W - UP
             this.PLAYER.y -= this.PLAYER.movementSpeed;
         }
         ;
-        if (keyssss["83"] === true && this.PLAYER.y < app.view.height - 30) { // S - DOWN
+        if (this.keysPressed["83"] === true && this.PLAYER.y < app.view.height - 30) { // S - DOWN
             this.PLAYER.y += this.PLAYER.movementSpeed;
         }
         ;
-        if (keyssss["65"] === true && this.PLAYER.x > 50) { // A - LEFT
+        if (this.keysPressed["65"] === true && this.PLAYER.x > 50) { // A - LEFT
             this.PLAYER.x -= this.PLAYER.movementSpeed;
         }
         ;
-        if (keyssss["68"] === true && this.PLAYER.x < app.view.width - 50) { // D - RIGHT
+        if (this.keysPressed["68"] === true && this.PLAYER.x < app.view.width - 50) { // D - RIGHT
             this.PLAYER.x += this.PLAYER.movementSpeed;
         }
         ;
-        if (keyssss["32"] === true) { // D - RIGHT
+        if (this.keysPressed["32"] === true) { // D - RIGHT
             this.PLAYER.fire();
-            setTimeout(() => keyssss["32"] = false, 10);
+            setTimeout(() => this.keysPressed["32"] = false, 10);
         }
         ;
+        if (this.distanceTraveled % 60 === 0)
+            new Enemy_1.Enemy(app);
+        if (this.distanceTraveled % 250 === 0)
+            new Obstacle_1.Obstacle(app);
         Enemy_1.Enemy.enemies.forEach(enemy => {
             const chance = Math.random() * 1000;
             if (chance < 5) {
@@ -153,6 +151,7 @@ class App {
         });
         Enemy_1.Enemy.enemies.forEach(enemy => enemy.x -= enemy.movementSpeed);
         Obstacle_1.Obstacle.obstacles.forEach(obstacle => obstacle.x -= obstacle.movementSpeed);
+        Bullet_1.Bullet.bullets.forEach((bullet) => bullet.x += bullet.movementSpeed);
         Enemy_1.Enemy.enemies.forEach((enemy) => {
             if (this.collision(enemy, this.PLAYER)) {
                 this.PLAYER.livesLeft--;
@@ -160,7 +159,6 @@ class App {
             }
             ;
         });
-        Bullet_1.Bullet.bullets.forEach((bullet) => bullet.x += bullet.movementSpeed);
         Bullet_1.Bullet.bullets.forEach((bullet) => {
             if (this.collision(bullet, this.PLAYER)) {
                 bullet.removeBullet();
@@ -182,16 +180,16 @@ class App {
             }
             ;
         });
-        app.stage.addChild(App.ScoreText);
+        app.stage.addChild(App.InfoText);
     }
     ;
 }
 exports.App = App;
-App.ScoreText = new PIXI.Text("Score: ", {
+App.InfoText = new PIXI.Text("Score: ", {
     fontSize: 35,
-    fill: "#aaff",
+    fill: "#ffaa",
     align: "center",
-    stroke: "#aaaaaa",
+    stroke: "#bbbbbb",
     strokeThickness: 0,
 });
 ;
@@ -210,7 +208,7 @@ class Enemy {
         this.sprite = PIXI.Sprite.from(app.loader.resources[`${this.shipType}`].url);
         this.sprite.scale.x = -0.1;
         this.sprite.scale.y = 0.1;
-        this.sprite.x = app.view.width - this.sprite.width / 2;
+        this.sprite.x = app.view.width + this.sprite.width;
         this.sprite.y = Math.random() * (app.view.height - 45) + 20;
         this.sprite.anchor.set(0.5);
         this.movementSpeed = this.setSpeed();
@@ -297,8 +295,8 @@ class Obstacle {
         this._movementSpeed = 2;
         this.obstacleType = `${Obstacle.obstacleTypes[Math.round(Math.random() * 2)]}`;
         this.sprite = PIXI.Sprite.from(app.loader.resources[`${this.obstacleType}`].url);
-        this.sprite.scale.x = Math.random() * 1.4 + 0.2;
-        this.sprite.scale.y = Math.random() * 1.4 + 0.2;
+        this.sprite.scale.x = Math.random() * 1 + 0.2;
+        this.sprite.scale.y = Math.random() * 1 + 0.2;
         this.sprite.x = app.view.width + this.sprite.width * this.sprite.scale.x / 2 + Math.random() * 100;
         this.sprite.y = app.view.height - 45;
         this.sprite.anchor.set(0.5);
@@ -509,13 +507,13 @@ class Parallax {
     constructor(textureBack, textureMiddle, textureFront, app) {
         this.app = app;
         this.positionX = 0;
-        this.scrollSpeed = 1;
-        this.backgroundFar = this.createBg(app.loader.resources[`${textureBack}`].texture);
-        this.backgroungMiddle = this.createBg(app.loader.resources[`${textureMiddle}`].texture);
-        this.backgroungFore = this.createBg(app.loader.resources[`${textureFront}`].texture);
+        this.scrollSpeed = 2;
+        this.backgroundFar = this.createBackground(app.loader.resources[`${textureBack}`].texture);
+        this.backgroungMiddle = this.createBackground(app.loader.resources[`${textureMiddle}`].texture);
+        this.backgroungFore = this.createBackground(app.loader.resources[`${textureFront}`].texture);
     }
     ;
-    createBg(texture) {
+    createBackground(texture) {
         let tiling = new PIXI.extras.TilingSprite(texture, this.app.view.width, this.app.view.height);
         tiling.position.set(0, 0);
         tiling.tileScale.x = 2.5;
@@ -524,9 +522,8 @@ class Parallax {
         return tiling;
     }
     ;
-    updateBg() {
+    updateBackground() {
         this.positionX += this.scrollSpeed;
-        this.positionX += 1;
         this.backgroungFore.tilePosition.x = -this.positionX;
         this.backgroungMiddle.tilePosition.x = -this.positionX / 2;
         this.backgroundFar.tilePosition.x = -this.positionX / 4;

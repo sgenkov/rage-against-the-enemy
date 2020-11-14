@@ -8,8 +8,8 @@ export class Obstacle {
     public constructor(public app: PIXI.Application) {
         this.obstacleType = `${Obstacle.obstacleTypes[Math.round(Math.random() * 2)]}`;
         this.sprite = PIXI.Sprite.from(app.loader.resources[`${this.obstacleType}`].url);
-        this.sprite.scale.x = Math.random() * 1.4 + 0.2;
-        this.sprite.scale.y = Math.random() * 1.4 + 0.2;
+        this.sprite.scale.x = Math.random() * 1 + 0.2;
+        this.sprite.scale.y = Math.random() * 1 + 0.2;
         this.sprite.x = app.view.width + this.sprite.width * this.sprite.scale.x / 2 + Math.random() * 100;
         this.sprite.y = app.view.height - 45;
         this.sprite.anchor.set(0.5);
