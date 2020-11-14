@@ -10,16 +10,8 @@ export class App {
     public distanceTraveled: number = 0;
     public hiScore: number = 0;
     public keysPressed: any = {};
-    private generateEnemyInterval: NodeJS.Timeout;
-    private generateObstacleInterval: NodeJS.Timeout;
 
-    // public livesInfo: any = document.querySelector("#lives");
-    // public scoreInfo: any = document.querySelector("#score");
-    // public bulletsInfo: any = document.querySelector("#bullets");
-    // public distanceTraveledInfo: any = document.querySelector("#distanceTraveled");
-    // public enemiesInfo = document.querySelector("#enemies");
-    // public hiScoreInfo = document.querySelector("#hiScore");
-    static InfoText: PIXI.Text = new PIXI.Text("Score: ", {
+       static InfoText: PIXI.Text = new PIXI.Text("Score: ", {
         fontSize: 35,
         fill: "#ffaa",
         align: "center",
@@ -30,9 +22,7 @@ export class App {
     private PLAYER: PlayerShip;
     private PARALLAX: Parallax;
     constructor(public app: PIXI.Application) {
-        // if (this.hiScoreInfo) this.hiScoreInfo.innerHTML = 'HiScore :' + 0;
         this.loadAssets();
-        // this.distanceTraveledInfo.innerHTML = 'Distance traveled: ' + JSON.stringify(this.distanceTraveled);
         document.body.appendChild(this.app.view);
         document.addEventListener("keydown", this.keysDown.bind(this));
         document.addEventListener("keyup", this.keysUp.bind(this));
@@ -101,10 +91,6 @@ export class App {
     private doneLoading(app: PIXI.Application) {
         this.PARALLAX = new Parallax("farground", "midground", "foreground", app);
         this.PLAYER = new PlayerShip(app);
-
-        this.generateEnemyInterval = setInterval(() => new Enemy(app), 1200);
-        this.generateObstacleInterval = setInterval(() => new Obstacle(app), 3950);
-
         app.ticker.add(() => this.gameLoop(app));
     };
 
@@ -132,21 +118,10 @@ export class App {
             this.hiScore = this.score;
         };
         this.score = 0;
-        // this.hiScoreInfo && (this.hiScoreInfo.innerHTML = 'HiScore: ' + JSON.stringify(this.hiScore));
     };
 
-     fn() {
-        let res;
-        res = document.onblur;
-        return res;
-    }
+    
     private gameLoop(app: PIXI.Application) {
-        // console.count();
-        // console.log('enemy interval' + JSON.stringify(this.generateObstacleInterval) );
-        // console.log(this.fn());
-        
-       
-
         App.InfoText.text =
             `Lives: ${this.PLAYER.livesLeft}    Score: ${this.score}    HiScore: ${this.hiScore}    Distance traveled: ${this.distanceTraveled}`
 
@@ -172,6 +147,9 @@ export class App {
             this.PLAYER.fire();
             setTimeout(() => this.keysPressed["32"] = false, 10);
         };
+
+        if (this.distanceTraveled % 60 === 0) new Enemy(app);
+        if (this.distanceTraveled % 250 === 0) new Obstacle(app);
         Enemy.enemies.forEach(enemy => {
             const chance: number = Math.random() * 1000;
             if (chance < 5) {
@@ -209,31 +187,5 @@ export class App {
         });
         app.stage.addChild(App.InfoText);
 
-        // this.livesInfo.innerHTML = 'Lives: ' + JSON.stringify(this.PLAYER.livesLeft);
-        // this.scoreInfo.innerHTML = 'Score: ' + JSON.stringify(this.score);
-        // this.distanceTraveledInfo.innerHTML = 'Distance traveled: ' + Math.ceil(this.distanceTraveled / 10);
-        // this.bulletsInfo.innerHTML = 'Bullets: ' + Bullet.bullets.map((bullet, index) => {
-        //     if (index > 6) {
-        //         return '...';
-        //     }
-        //     return JSON.stringify({
-        //         X: bullet.x,
-        //         Y: Math.round(bullet.y)
-        //     })
-        // });
-
-        // if (this.enemiesInfo) {
-        //     this.enemiesInfo.innerHTML = 'Enemies: ' + Enemy.enemies.map((enemy, index) => {
-        //         if (index > 6) {
-        //             return '...';
-        //         }
-        //         return JSON.stringify({
-        //             X: enemy.x,
-        //             Y: Math.round(enemy.y)
-        //         })
-        //     });
-        // }
     };
-
-
-}
+};
