@@ -10,8 +10,8 @@ export class Enemy {
     private _movementSpeed: number = 1;
 
     public constructor(public app: PIXI.Application) {
-        this.shipType = `${Enemy.enemyShipsTypes[Math.round(Math.random() * 2)]}`;
-        this.sprite = PIXI.Sprite.from(app.loader.resources[`${this.shipType}`].url);
+        this.shipType = Enemy.enemyShipsTypes[Math.round(Math.random() * 2)];
+        this.sprite = PIXI.Sprite.from(app.loader.resources[this.shipType].url);
         this.sprite.scale.x = -0.1;
         this.sprite.scale.y = 0.1;
         this.sprite.x = app.view.width + this.sprite.width;
@@ -51,7 +51,7 @@ export class Enemy {
 
     public removeEnemy(): void {
         this.app.stage.removeChild(this.sprite);
-        Enemy.enemies.splice(Enemy.enemies.findIndex(enemy => (enemy.x === this.sprite.x) && (enemy.y === this.sprite.y)), 1);
+        Enemy.enemies.splice(Enemy.enemies.indexOf(this), 1);
     };
     public fire(): Bullet {
         return (
@@ -68,20 +68,7 @@ export class Enemy {
     };
 
     private setSpeed(): number {
-        let res: number;
-        switch (this.shipType) {
-            case "enemyLeft":
-                res = 1;
-                return res;
-            case "enemyLeft2":
-                res = 2;
-                return res;
-            case "enemyLeft3":
-                res = 3;
-                return res;
-            default:
-                return 1;
-        };
+       return Enemy.enemyShipsTypes.indexOf(this.shipType) + 1;
     };
 
 };

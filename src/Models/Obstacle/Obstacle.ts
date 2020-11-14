@@ -1,3 +1,5 @@
+import { Enemy } from '../Enemy/Enemy';
+
 export class Obstacle {
     private sprite: PIXI.Sprite;
 
@@ -45,7 +47,7 @@ export class Obstacle {
 
     public removeObstacle(): void {
         this.app.stage.removeChild(this.sprite);
-        Obstacle.obstacles.splice(Obstacle.obstacles.findIndex(obstacle => (obstacle.x === this.sprite.x) && (obstacle.y === this.sprite.y)), 1);
+        Obstacle.obstacles.splice(Obstacle.obstacles.indexOf(this), 1);
     };
     
 };

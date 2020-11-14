@@ -11,7 +11,7 @@ export class App {
     public hiScore: number = 0;
     public keysPressed: any = {};
 
-       static InfoText: PIXI.Text = new PIXI.Text("Score: ", {
+    static InfoText: PIXI.Text = new PIXI.Text("Score: ", {
         fontSize: 35,
         fill: "#ffaa",
         align: "center",
@@ -120,7 +120,7 @@ export class App {
         this.score = 0;
     };
 
-    
+
     private gameLoop(app: PIXI.Application) {
         App.InfoText.text =
             `Lives: ${this.PLAYER.livesLeft}    Score: ${this.score}    HiScore: ${this.hiScore}    Distance traveled: ${this.distanceTraveled}`
@@ -151,22 +151,21 @@ export class App {
         if (this.distanceTraveled % 60 === 0) new Enemy(app);
         if (this.distanceTraveled % 250 === 0) new Obstacle(app);
         Enemy.enemies.forEach(enemy => {
-            const chance: number = Math.random() * 1000;
-            if (chance < 5) {
+            if (Math.random() * 1000 < 5) {
                 enemy.fire();
             };
         });
-        Enemy.enemies.forEach(enemy => enemy.x -= enemy.movementSpeed);
         Obstacle.obstacles.forEach(obstacle => obstacle.x -= obstacle.movementSpeed);
-        Bullet.bullets.forEach((bullet) => bullet.x += bullet.movementSpeed);
 
         Enemy.enemies.forEach((enemy) => {
+            enemy.x -= enemy.movementSpeed;
             if (this.collision(enemy, this.PLAYER)) {
                 this.PLAYER.livesLeft--;
                 enemy.removeEnemy();
             };
         });
         Bullet.bullets.forEach((bullet) => {
+            bullet.x += bullet.movementSpeed;
             if (this.collision(bullet, this.PLAYER)) {
                 bullet.removeBullet();
                 this.PLAYER.livesLeft--;

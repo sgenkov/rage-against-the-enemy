@@ -143,16 +143,14 @@ class App {
         if (this.distanceTraveled % 250 === 0)
             new Obstacle_1.Obstacle(app);
         Enemy_1.Enemy.enemies.forEach(enemy => {
-            const chance = Math.random() * 1000;
-            if (chance < 5) {
+            if (Math.random() * 1000 < 5) {
                 enemy.fire();
             }
             ;
         });
-        Enemy_1.Enemy.enemies.forEach(enemy => enemy.x -= enemy.movementSpeed);
         Obstacle_1.Obstacle.obstacles.forEach(obstacle => obstacle.x -= obstacle.movementSpeed);
-        Bullet_1.Bullet.bullets.forEach((bullet) => bullet.x += bullet.movementSpeed);
         Enemy_1.Enemy.enemies.forEach((enemy) => {
+            enemy.x -= enemy.movementSpeed;
             if (this.collision(enemy, this.PLAYER)) {
                 this.PLAYER.livesLeft--;
                 enemy.removeEnemy();
@@ -160,6 +158,7 @@ class App {
             ;
         });
         Bullet_1.Bullet.bullets.forEach((bullet) => {
+            bullet.x += bullet.movementSpeed;
             if (this.collision(bullet, this.PLAYER)) {
                 bullet.removeBullet();
                 this.PLAYER.livesLeft--;
@@ -204,8 +203,8 @@ class Enemy {
     constructor(app) {
         this.app = app;
         this._movementSpeed = 1;
-        this.shipType = `${Enemy.enemyShipsTypes[Math.round(Math.random() * 2)]}`;
-        this.sprite = PIXI.Sprite.from(app.loader.resources[`${this.shipType}`].url);
+        this.shipType = Enemy.enemyShipsTypes[Math.round(Math.random() * 2)];
+        this.sprite = PIXI.Sprite.from(app.loader.resources[this.shipType].url);
         this.sprite.scale.x = -0.1;
         this.sprite.scale.y = 0.1;
         this.sprite.x = app.view.width + this.sprite.width;
@@ -251,7 +250,7 @@ class Enemy {
     ;
     removeEnemy() {
         this.app.stage.removeChild(this.sprite);
-        Enemy.enemies.splice(Enemy.enemies.findIndex(enemy => (enemy.x === this.sprite.x) && (enemy.y === this.sprite.y)), 1);
+        Enemy.enemies.splice(Enemy.enemies.indexOf(this), 1);
     }
     ;
     fire() {
@@ -261,21 +260,7 @@ class Enemy {
     }
     ;
     setSpeed() {
-        let res;
-        switch (this.shipType) {
-            case "enemyLeft":
-                res = 1;
-                return res;
-            case "enemyLeft2":
-                res = 2;
-                return res;
-            case "enemyLeft3":
-                res = 3;
-                return res;
-            default:
-                return 1;
-        }
-        ;
+        return Enemy.enemyShipsTypes.indexOf(this.shipType) + 1;
     }
     ;
 }
@@ -338,7 +323,7 @@ class Obstacle {
     ;
     removeObstacle() {
         this.app.stage.removeChild(this.sprite);
-        Obstacle.obstacles.splice(Obstacle.obstacles.findIndex(obstacle => (obstacle.x === this.sprite.x) && (obstacle.y === this.sprite.y)), 1);
+        Obstacle.obstacles.splice(Obstacle.obstacles.indexOf(this), 1);
     }
     ;
 }
@@ -410,7 +395,7 @@ class Bullet {
     ;
     removeBullet() {
         this.app.stage.removeChild(this.sprite);
-        Bullet.bullets.splice(Bullet.bullets.findIndex(bullet => (bullet.x === this.sprite.x) && (bullet.y === this.sprite.y)), 1);
+        Bullet.bullets.splice(Bullet.bullets.indexOf(this), 1);
     }
     ;
 }

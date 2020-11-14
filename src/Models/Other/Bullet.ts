@@ -58,7 +58,7 @@ export class Bullet {
 
     public removeBullet(): void {
         this.app.stage.removeChild(this.sprite);
-        Bullet.bullets.splice(Bullet.bullets.findIndex(bullet => (bullet.x === this.sprite.x) && (bullet.y === this.sprite.y)), 1);
+        Bullet.bullets.splice(Bullet.bullets.indexOf(this), 1);
     };
 
 };
