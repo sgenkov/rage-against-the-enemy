@@ -4,32 +4,44 @@ import { Parallax } from './Parallax/Parallax';
 import { Bullet } from './Models/Other/Bullet';
 import { Obstacle } from './Models/Obstacle/Obstacle';
 import { BulletOrigin } from './Models/Types/BulletType';
-let keyssss: any = {};
+
 export class App {
     public score: number = 0;
     public distanceTraveled: number = 0;
     public hiScore: number = 0;
-    public keyssss: any = {};
-    static ScoreText: PIXI.Text = new PIXI.Text("Score: ", {
-        fontSize: 35,
-        fill: "#aaff",
-        align: "center",
-        stroke: "#aaaaaa",
-        strokeThickness: 0,
-      });
+    public keysPressed: any = {};
+    private generateEnemyInterval: NodeJS.Timeout;
+    private generateObstacleInterval: NodeJS.Timeout;
 
-    public PLAYER: PlayerShip;
-    public PARALLAX: Parallax;
+    // public livesInfo: any = document.querySelector("#lives");
+    // public scoreInfo: any = document.querySelector("#score");
+    // public bulletsInfo: any = document.querySelector("#bullets");
+    // public distanceTraveledInfo: any = document.querySelector("#distanceTraveled");
+    // public enemiesInfo = document.querySelector("#enemies");
+    // public hiScoreInfo = document.querySelector("#hiScore");
+    static InfoText: PIXI.Text = new PIXI.Text("Score: ", {
+        fontSize: 35,
+        fill: "#ffaa",
+        align: "center",
+        stroke: "#bbbbbb",
+        strokeThickness: 0,
+    });
+
+    private PLAYER: PlayerShip;
+    private PARALLAX: Parallax;
     constructor(public app: PIXI.Application) {
-        this.createApp();
+        // if (this.hiScoreInfo) this.hiScoreInfo.innerHTML = 'HiScore :' + 0;
+        this.loadAssets();
+        // this.distanceTraveledInfo.innerHTML = 'Distance traveled: ' + JSON.stringify(this.distanceTraveled);
         document.body.appendChild(this.app.view);
-        document.addEventListener("keydown", this.keysDown);
-        document.addEventListener("keyup", this.keysUp);
+        document.addEventListener("keydown", this.keysDown.bind(this));
+        document.addEventListener("keyup", this.keysUp.bind(this));
         document.body.addEventListener("pointerdown", () => this.PLAYER.fire());
-        App.ScoreText.position.y = app.view.height - App.ScoreText.height;
+        App.InfoText.position.y = app.view.height - App.InfoText.height;
+
     };
 
-    private createApp() {
+    private loadAssets() {
         this.app.loader.baseUrl = "../src/assets";
         this.app.loader
             .add("shipRight", "Ships/shipRight.png")
@@ -78,11 +90,11 @@ export class App {
     };
 
     public keysDown(e: any) {
-        keyssss[`${e.keyCode}`] = true;
+        this.keysPressed[`${e.keyCode}`] = true;
     };
 
     public keysUp(e: any) {
-        keyssss[`${e.keyCode}`] = false;
+        this.keysPressed[`${e.keyCode}`] = false;
     };
 
 
@@ -90,8 +102,8 @@ export class App {
         this.PARALLAX = new Parallax("farground", "midground", "foreground", app);
         this.PLAYER = new PlayerShip(app);
 
-        setInterval(() => new Enemy(app), 1200);
-        setInterval(() => new Obstacle(app), 4950);
+        this.generateEnemyInterval = setInterval(() => new Enemy(app), 1200);
+        this.generateObstacleInterval = setInterval(() => new Obstacle(app), 3950);
 
         app.ticker.add(() => this.gameLoop(app));
     };
@@ -100,56 +112,65 @@ export class App {
 
     private reset() {
 
-        for (let i = 0; i < Enemy.enemies.length; ++i) {
-            Enemy.enemies[i].removeEnemy();
-            --i;
+        while (Enemy.enemies.length > 0) {
+            Enemy.enemies[0].removeEnemy();
         };
 
-        for (let i = 0; i < Bullet.bullets.length; ++i) {
-            Bullet.bullets[i].removeBullet();
-            --i;
+        while (Bullet.bullets.length > 0) {
+            Bullet.bullets[0].removeBullet();
         };
 
-        for (let i = 0; i < Obstacle.obstacles.length; ++i) {
-            Obstacle.obstacles[i].removeObstacle();
-            --i;
+        while (Obstacle.obstacles.length > 0) {
+            Obstacle.obstacles[0].removeObstacle();
         };
+
         this.PLAYER.removePlayer();
         this.PLAYER = new PlayerShip(this.app);
         this.distanceTraveled = 0;
-        
+
         if (this.score > this.hiScore) {
             this.hiScore = this.score;
         };
         this.score = 0;
+        // this.hiScoreInfo && (this.hiScoreInfo.innerHTML = 'HiScore: ' + JSON.stringify(this.hiScore));
     };
-    private gameLoop(app: PIXI.Application) {
-        App.ScoreText.text =
-        `Lives: ${this.PLAYER.livesLeft}    Score: ${this.score}    HiScore: ${this.hiScore}    Distance traveled: ${this.distanceTraveled}`
 
-        this.PARALLAX.updateBg();
+     fn() {
+        let res;
+        res = document.onblur;
+        return res;
+    }
+    private gameLoop(app: PIXI.Application) {
+        // console.count();
+        // console.log('enemy interval' + JSON.stringify(this.generateObstacleInterval) );
+        // console.log(this.fn());
+        
+       
+
+        App.InfoText.text =
+            `Lives: ${this.PLAYER.livesLeft}    Score: ${this.score}    HiScore: ${this.hiScore}    Distance traveled: ${this.distanceTraveled}`
+
+        this.PARALLAX.updateBackground();
         if (this.PLAYER.livesLeft < 1) {
             this.reset();
         };
 
         this.distanceTraveled++;
-        if (keyssss["87"] === true && this.PLAYER.y > 30) { // W - UP
-
+        if (this.keysPressed["87"] === true && this.PLAYER.y > 30) { // W - UP
             this.PLAYER.y -= this.PLAYER.movementSpeed;
-
         };
-        if (keyssss["83"] === true && this.PLAYER.y < app.view.height - 30) { // S - DOWN
+        if (this.keysPressed["83"] === true && this.PLAYER.y < app.view.height - 30) { // S - DOWN
             this.PLAYER.y += this.PLAYER.movementSpeed;
         };
-        if (keyssss["65"] === true && this.PLAYER.x > 50) { // A - LEFT
+        if (this.keysPressed["65"] === true && this.PLAYER.x > 50) { // A - LEFT
             this.PLAYER.x -= this.PLAYER.movementSpeed;
         };
-        if (keyssss["68"] === true && this.PLAYER.x < app.view.width - 50) { // D - RIGHT
+        if (this.keysPressed["68"] === true && this.PLAYER.x < app.view.width - 50) { // D - RIGHT
             this.PLAYER.x += this.PLAYER.movementSpeed;
         };
-        if (keyssss["32"] === true) { // D - RIGHT
+        if (this.keysPressed["32"] === true) { // D - RIGHT
             this.PLAYER.fire();
-            setTimeout(() => keyssss["32"] = false, 10);
+            setTimeout(() => this.keysPressed["32"] = false, 10);
         };
         Enemy.enemies.forEach(enemy => {
             const chance: number = Math.random() * 1000;
@@ -159,14 +180,14 @@ export class App {
         });
         Enemy.enemies.forEach(enemy => enemy.x -= enemy.movementSpeed);
         Obstacle.obstacles.forEach(obstacle => obstacle.x -= obstacle.movementSpeed);
-    
+        Bullet.bullets.forEach((bullet) => bullet.x += bullet.movementSpeed);
+
         Enemy.enemies.forEach((enemy) => {
             if (this.collision(enemy, this.PLAYER)) {
                 this.PLAYER.livesLeft--;
                 enemy.removeEnemy();
             };
         });
-        Bullet.bullets.forEach((bullet) => bullet.x += bullet.movementSpeed);
         Bullet.bullets.forEach((bullet) => {
             if (this.collision(bullet, this.PLAYER)) {
                 bullet.removeBullet();
@@ -186,7 +207,33 @@ export class App {
                 this.PLAYER.livesLeft = 0;
             };
         });
-        app.stage.addChild(App.ScoreText);
+        app.stage.addChild(App.InfoText);
 
+        // this.livesInfo.innerHTML = 'Lives: ' + JSON.stringify(this.PLAYER.livesLeft);
+        // this.scoreInfo.innerHTML = 'Score: ' + JSON.stringify(this.score);
+        // this.distanceTraveledInfo.innerHTML = 'Distance traveled: ' + Math.ceil(this.distanceTraveled / 10);
+        // this.bulletsInfo.innerHTML = 'Bullets: ' + Bullet.bullets.map((bullet, index) => {
+        //     if (index > 6) {
+        //         return '...';
+        //     }
+        //     return JSON.stringify({
+        //         X: bullet.x,
+        //         Y: Math.round(bullet.y)
+        //     })
+        // });
+
+        // if (this.enemiesInfo) {
+        //     this.enemiesInfo.innerHTML = 'Enemies: ' + Enemy.enemies.map((enemy, index) => {
+        //         if (index > 6) {
+        //             return '...';
+        //         }
+        //         return JSON.stringify({
+        //             X: enemy.x,
+        //             Y: Math.round(enemy.y)
+        //         })
+        //     });
+        // }
     };
-};
+
+
+}

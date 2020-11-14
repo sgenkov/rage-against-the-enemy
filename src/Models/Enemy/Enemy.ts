@@ -14,7 +14,7 @@ export class Enemy {
         this.sprite = PIXI.Sprite.from(app.loader.resources[`${this.shipType}`].url);
         this.sprite.scale.x = -0.1;
         this.sprite.scale.y = 0.1;
-        this.sprite.x = app.view.width - this.sprite.width / 2;
+        this.sprite.x = app.view.width + this.sprite.width;
         this.sprite.y = Math.random() * (app.view.height - 45) + 20;
         this.sprite.anchor.set(0.5);
         this.movementSpeed = this.setSpeed();
