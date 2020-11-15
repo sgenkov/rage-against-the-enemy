@@ -23,27 +23,6 @@ class App {
         App.InfoText.position.y = app.view.height - App.InfoText.height;
     }
     ;
-    loadAssets() {
-        this.app.loader.baseUrl = "../src/assets";
-        this.app.loader
-            .add("shipRight", "Ships/shipRight.png")
-            .add("enemyLeft", "Ships/plane_3_red.png")
-            .add("enemyLeft2", "Ships/plane_3_blue.png")
-            .add("enemyLeft3", "Ships/plane_3_yellow.png")
-            .add("bulletRight", "Bullets/bulletRight.png")
-            .add("bulletLeft", "Bullets/enemyBulletLeft.png")
-            .add("foreground", "Mountains/foreground_mountains.png")
-            .add("midground", "Mountains/midground_mountains.png")
-            .add("farground", "Mountains/farground_mountains.png")
-            .add("rock", "Obstacles/rock1.png")
-            .add("rock2", "Obstacles/rock2.png")
-            .add("rock3", "Obstacles/rock3.png");
-        this.app.loader.onProgress.add(this.showProgress);
-        this.app.loader.onComplete.add(() => this.doneLoading(this.app));
-        this.app.loader.onError.add(this.reportError);
-        this.app.loader.load();
-        this.app.stage.interactive = true;
-    }
     collision(a, b) {
         const aBox = a.getBounds();
         const bBox = b.getBounds();
@@ -85,29 +64,6 @@ class App {
         app.ticker.add(() => this.gameLoop(app));
     }
     ;
-    reset() {
-        while (Enemy_1.Enemy.enemies.length > 0) {
-            Enemy_1.Enemy.enemies[0].removeEnemy();
-        }
-        ;
-        while (Bullet_1.Bullet.bullets.length > 0) {
-            Bullet_1.Bullet.bullets[0].removeBullet();
-        }
-        ;
-        while (Obstacle_1.Obstacle.obstacles.length > 0) {
-            Obstacle_1.Obstacle.obstacles[0].removeObstacle();
-        }
-        ;
-        this.PLAYER.removePlayer();
-        this.PLAYER = new PlayerShip_1.PlayerShip(this.app);
-        this.distanceTraveled = 0;
-        if (this.score > this.hiScore) {
-            this.hiScore = this.score;
-        }
-        ;
-        this.score = 0;
-    }
-    ;
     gameLoop(app) {
         App.InfoText.text =
             `Lives: ${this.PLAYER.livesLeft}    Score: ${this.score}    HiScore: ${this.hiScore}    Distance traveled: ${this.distanceTraveled}`;
@@ -138,12 +94,15 @@ class App {
             setTimeout(() => this.keysPressed["32"] = false, 10);
         }
         ;
-        if (this.distanceTraveled % 60 === 0)
+        if (this.distanceTraveled % 80 === 0)
             new Enemy_1.Enemy(app);
-        if (this.distanceTraveled % 250 === 0)
+        if (this.distanceTraveled % 350 === 0)
             new Obstacle_1.Obstacle(app);
+        // if ( this.distanceTraveled === 80 ) {
+        //     const deleteThis: Explosion = new Explosion(app);
+        // };
         Enemy_1.Enemy.enemies.forEach(enemy => {
-            if (Math.random() * 1000 < 5) {
+            if (Math.random() * 1000 < 3) {
                 enemy.fire();
             }
             ;
@@ -151,6 +110,11 @@ class App {
         Obstacle_1.Obstacle.obstacles.forEach(obstacle => obstacle.x -= obstacle.movementSpeed);
         Enemy_1.Enemy.enemies.forEach((enemy) => {
             enemy.x -= enemy.movementSpeed;
+            if (enemy.isStriked) {
+                enemy.y += enemy.fallSpeed;
+                enemy.fallSpeed += 0.3;
+            }
+            ;
             if (this.collision(enemy, this.PLAYER)) {
                 this.PLAYER.livesLeft--;
                 enemy.removeEnemy();
@@ -167,8 +131,16 @@ class App {
             Enemy_1.Enemy.enemies.forEach((enemy) => {
                 if (this.collision(enemy, bullet)) {
                     bullet.removeBullet();
-                    enemy.removeEnemy();
-                    this.score++;
+                    if (enemy.isStriked) {
+                        this.score += 2;
+                        enemy.removeEnemy();
+                    }
+                    else {
+                        enemy.isStriked = true;
+                        this.score++;
+                    }
+                    ;
+                    // enemy.isStriked = true;
                 }
                 ;
             });
@@ -182,6 +154,60 @@ class App {
         app.stage.addChild(App.InfoText);
     }
     ;
+    reset() {
+        while (Enemy_1.Enemy.enemies.length > 0) {
+            Enemy_1.Enemy.enemies[0].removeEnemy();
+        }
+        ;
+        while (Bullet_1.Bullet.bullets.length > 0) {
+            Bullet_1.Bullet.bullets[0].removeBullet();
+        }
+        ;
+        while (Obstacle_1.Obstacle.obstacles.length > 0) {
+            Obstacle_1.Obstacle.obstacles[0].removeObstacle();
+        }
+        ;
+        this.PLAYER.removePlayer();
+        this.PLAYER = new PlayerShip_1.PlayerShip(this.app);
+        this.distanceTraveled = 0;
+        if (this.score > this.hiScore) {
+            this.hiScore = this.score;
+        }
+        ;
+        this.score = 0;
+    }
+    ;
+    loadAssets() {
+        this.app.loader.baseUrl = "../src/assets";
+        this.app.loader
+            .add("shipRight", "Ships/shipRight.png")
+            .add("enemyLeft", "Ships/plane_3_red.png")
+            .add("enemyLeft2", "Ships/plane_3_blue.png")
+            .add("enemyLeft3", "Ships/plane_3_yellow.png")
+            .add("bulletRight", "Bullets/bulletRight.png")
+            .add("bulletLeft", "Bullets/enemyBulletLeft.png")
+            .add("foreground", "Mountains/foreground_mountains.png")
+            .add("midground", "Mountains/midground_mountains.png")
+            .add("farground", "Mountains/farground_mountains.png")
+            .add("rock", "Obstacles/rock1.png")
+            .add("rock2", "Obstacles/rock2.png")
+            .add("rock3", "Obstacles/rock3.png")
+            .add("expl1", "Explosion/keyframes/explosion_01.png")
+            .add("expl2", "Explosion/keyframes/explosion_02.png")
+            .add("expl3", "Explosion/keyframes/explosion_03.png")
+            .add("expl4", "Explosion/keyframes/explosion_04.png")
+            .add("expl5", "Explosion/keyframes/explosion_05.png")
+            .add("expl6", "Explosion/keyframes/explosion_06.png")
+            .add("expl7", "Explosion/keyframes/explosion_07.png")
+            .add("expl8", "Explosion/keyframes/explosion_08.png")
+            .add("expl9", "Explosion/keyframes/explosion_09.png");
+        this.app.loader.onProgress.add(this.showProgress);
+        this.app.loader.onComplete.add(() => this.doneLoading(this.app));
+        this.app.loader.onError.add(this.reportError);
+        this.app.loader.load();
+        this.app.stage.interactive = true;
+    }
+    ;
 }
 exports.App = App;
 App.InfoText = new PIXI.Text("Score: ", {
@@ -193,15 +219,51 @@ App.InfoText = new PIXI.Text("Score: ", {
 });
 ;
 
-},{"./Models/Enemy/Enemy":2,"./Models/Obstacle/Obstacle":3,"./Models/Other/Bullet":4,"./Models/Player/PlayerShip":5,"./Models/Types/BulletType":6,"./Parallax/Parallax":7}],2:[function(require,module,exports){
+},{"./Models/Enemy/Enemy":3,"./Models/Obstacle/Obstacle":4,"./Models/Other/Bullet":5,"./Models/Player/PlayerShip":6,"./Models/Types/BulletType":7,"./Parallax/Parallax":8}],2:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.Explosion = void 0;
+class Explosion {
+    constructor(app, positionX = app.view.width / 2, positionY = app.view.height / 2) {
+        this.playerSheet = [];
+        this.playerSheet.push(PIXI.Texture.from(app.loader.resources["expl1"].url));
+        this.playerSheet.push(PIXI.Texture.from(app.loader.resources["expl2"].url));
+        this.playerSheet.push(PIXI.Texture.from(app.loader.resources["expl3"].url));
+        this.playerSheet.push(PIXI.Texture.from(app.loader.resources["expl4"].url));
+        this.playerSheet.push(PIXI.Texture.from(app.loader.resources["expl5"].url));
+        this.playerSheet.push(PIXI.Texture.from(app.loader.resources["expl6"].url));
+        this.playerSheet.push(PIXI.Texture.from(app.loader.resources["expl7"].url));
+        this.playerSheet.push(PIXI.Texture.from(app.loader.resources["expl8"].url));
+        this.playerSheet.push(PIXI.Texture.from(app.loader.resources["expl9"].url));
+        this.blast = new PIXI.extras.AnimatedSprite(this.playerSheet);
+        this.blast.anchor.set(0.5);
+        this.blast.animationSpeed = 0.5;
+        this.blast.loop = false;
+        this.blast.scale.x = 0.3;
+        this.blast.scale.y = 0.3;
+        this.blast.x = positionX;
+        this.blast.y = positionY;
+        app.stage.addChild(this.blast);
+        this.blast.play();
+        setTimeout(() => { app.stage.removeChild(this.blast); }, 400);
+    }
+    ;
+}
+exports.Explosion = Explosion;
+;
+
+},{}],3:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Enemy = void 0;
 const Bullet_1 = require("../../Models/Other/Bullet");
 const BulletType_1 = require("../Types/BulletType");
+const Explosion_1 = require("../../Effects/Explosion");
 class Enemy {
     constructor(app) {
         this.app = app;
+        this._fallSpeed = 0;
+        this._isStriked = false;
         this._movementSpeed = 1;
         this.shipType = Enemy.enemyShipsTypes[Math.round(Math.random() * 2)];
         this.sprite = PIXI.Sprite.from(app.loader.resources[this.shipType].url);
@@ -211,6 +273,7 @@ class Enemy {
         this.sprite.y = Math.random() * (app.view.height - 45) + 20;
         this.sprite.anchor.set(0.5);
         this.movementSpeed = this.setSpeed();
+        // this.sprite.rotation=Math.atan(this._fallSpeed / this._movementSpeed);
         Enemy.generatedEnemies++;
         Enemy.enemies.push(this);
         app.stage.addChild(this.sprite);
@@ -218,7 +281,11 @@ class Enemy {
     ;
     set x(value) {
         this.sprite.x = value;
-        if (value < -this.sprite.width / 2) {
+        // if(this._isStriked){
+        //     this.sprite.rotation = -Math.atan(this._fallSpeed / this._movementSpeed);
+        // };
+        this.sprite.rotation = -Math.atan(this._fallSpeed / this._movementSpeed);
+        if (value < -this.sprite.width) {
             this.removeEnemy();
         }
         ;
@@ -230,6 +297,10 @@ class Enemy {
     ;
     set y(value) {
         this.sprite.y = value;
+        if (this.sprite.y > this.app.view.height - this.sprite.height) {
+            this.removeEnemy();
+        }
+        ;
     }
     ;
     get y() {
@@ -244,11 +315,28 @@ class Enemy {
         return this._movementSpeed;
     }
     ;
+    set isStriked(value) {
+        this._isStriked = value;
+    }
+    ;
+    get isStriked() {
+        return this._isStriked;
+    }
+    ;
+    get fallSpeed() {
+        return this._fallSpeed;
+    }
+    ;
+    set fallSpeed(value) {
+        this._fallSpeed = value;
+    }
+    ;
     getBounds() {
         return this.sprite.getBounds();
     }
     ;
     removeEnemy() {
+        new Explosion_1.Explosion(this.app, this.sprite.x, this.sprite.y);
         this.app.stage.removeChild(this.sprite);
         Enemy.enemies.splice(Enemy.enemies.indexOf(this), 1);
     }
@@ -270,7 +358,7 @@ Enemy.enemyShipsTypes = ["enemyLeft", "enemyLeft2", "enemyLeft3"];
 Enemy.enemies = [];
 ;
 
-},{"../../Models/Other/Bullet":4,"../Types/BulletType":6}],3:[function(require,module,exports){
+},{"../../Effects/Explosion":2,"../../Models/Other/Bullet":5,"../Types/BulletType":7}],4:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Obstacle = void 0;
@@ -332,7 +420,7 @@ Obstacle.obstacleTypes = ["rock", "rock2", "rock3"];
 Obstacle.obstacles = [];
 ;
 
-},{}],4:[function(require,module,exports){
+},{}],5:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Bullet = void 0;
@@ -403,12 +491,13 @@ exports.Bullet = Bullet;
 Bullet.bullets = [];
 ;
 
-},{"../Types/BulletType":6}],5:[function(require,module,exports){
+},{"../Types/BulletType":7}],6:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.PlayerShip = void 0;
 const Bullet_1 = require("../Other/Bullet");
 const BulletType_1 = require("../Types/BulletType");
+const Explosion_1 = require("../../Effects/Explosion");
 class PlayerShip {
     constructor(app) {
         this.app = app;
@@ -465,6 +554,7 @@ class PlayerShip {
     }
     ;
     removePlayer() {
+        new Explosion_1.Explosion(this.app, this.sprite.x, this.sprite.y);
         this.app.stage.removeChild(this.sprite);
     }
     ;
@@ -473,7 +563,7 @@ exports.PlayerShip = PlayerShip;
 PlayerShip.shipsCreated = 0;
 ;
 
-},{"../Other/Bullet":4,"../Types/BulletType":6}],6:[function(require,module,exports){
+},{"../../Effects/Explosion":2,"../Other/Bullet":5,"../Types/BulletType":7}],7:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.BulletOrigin = void 0;
@@ -484,7 +574,7 @@ var BulletOrigin;
 })(BulletOrigin = exports.BulletOrigin || (exports.BulletOrigin = {}));
 ;
 
-},{}],7:[function(require,module,exports){
+},{}],8:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Parallax = void 0;
@@ -518,7 +608,7 @@ class Parallax {
 exports.Parallax = Parallax;
 ;
 
-},{}],8:[function(require,module,exports){
+},{}],9:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const App_1 = require("./App");
@@ -529,4 +619,4 @@ const app = new PIXI.Application({
 });
 const game = new App_1.App(app);
 
-},{"./App":1}]},{},[8]);
+},{"./App":1}]},{},[9]);

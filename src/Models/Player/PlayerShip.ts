@@ -1,5 +1,6 @@
 import { Bullet } from '../Other/Bullet';
 import { BulletOrigin } from '../Types/BulletType';
+import { Explosion } from '../../Effects/Explosion';
 export class PlayerShip {
 
     public static shipsCreated = 0;
@@ -56,6 +57,7 @@ export class PlayerShip {
     };
 
     public removePlayer(): void {
+        new Explosion(this.app, this.sprite.x, this.sprite.y)
         this.app.stage.removeChild(this.sprite);
     };
 };

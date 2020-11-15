@@ -1,11 +1,14 @@
 import { Bullet } from '../../Models/Other/Bullet';
 import { BulletOrigin } from '../Types/BulletType';
+import { Explosion } from '../../Effects/Explosion';
 export class Enemy {
     public static generatedEnemies: number = 0;
     private static enemyShipsTypes: string[] = ["enemyLeft", "enemyLeft2", "enemyLeft3"];
     private sprite: PIXI.Sprite;
     public static enemies: Enemy[] = [];
     private shipType: string;
+    private _fallSpeed: number = 0;
+    private _isStriked: boolean = false;
 
     private _movementSpeed: number = 1;
 
@@ -18,6 +21,7 @@ export class Enemy {
         this.sprite.y = Math.random() * (app.view.height - 45) + 20;
         this.sprite.anchor.set(0.5);
         this.movementSpeed = this.setSpeed();
+        // this.sprite.rotation=Math.atan(this._fallSpeed / this._movementSpeed);
         Enemy.generatedEnemies++;
         Enemy.enemies.push(this);
         app.stage.addChild(this.sprite);
@@ -25,7 +29,11 @@ export class Enemy {
 
     public set x(value: number) {
         this.sprite.x = value;
-        if (value < -this.sprite.width / 2) {
+        // if(this._isStriked){
+        //     this.sprite.rotation = -Math.atan(this._fallSpeed / this._movementSpeed);
+        // };
+        this.sprite.rotation = -Math.atan(this._fallSpeed / this._movementSpeed);
+        if (value < - this.sprite.width) {
             this.removeEnemy();
         };
     };
@@ -34,6 +42,9 @@ export class Enemy {
     };
     public set y(value: number) {
         this.sprite.y = value;
+        if (this.sprite.y > this.app.view.height - this.sprite.height) {
+            this.removeEnemy();
+        };
     };
     public get y(): number {
         return this.sprite.y;
@@ -45,11 +56,29 @@ export class Enemy {
         return this._movementSpeed;
     };
 
+    public set isStriked(value: boolean) {
+        this._isStriked = value;
+    };
+    public get isStriked(): boolean {
+        return this._isStriked;
+    };
+
+    public get fallSpeed(): number {
+        return this._fallSpeed;
+    };
+
+    public set fallSpeed(value: number) {
+        this._fallSpeed = value;
+    };
+    
+
+
     public getBounds(): any {
         return this.sprite.getBounds();
     };
 
     public removeEnemy(): void {
+        new Explosion(this.app, this.sprite.x, this.sprite.y);
         this.app.stage.removeChild(this.sprite);
         Enemy.enemies.splice(Enemy.enemies.indexOf(this), 1);
     };
@@ -68,7 +97,13 @@ export class Enemy {
     };
 
     private setSpeed(): number {
-       return Enemy.enemyShipsTypes.indexOf(this.shipType) + 1;
+        return Enemy.enemyShipsTypes.indexOf(this.shipType) + 1;
     };
+
+    // public deadlyStricken(): void {
+    //     setInterval(() => {
+    //         this.y += this.fallSpeed;
+    //     }, 100);
+    // };
 
 };

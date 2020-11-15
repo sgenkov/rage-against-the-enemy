@@ -4,6 +4,7 @@ import { Parallax } from './Parallax/Parallax';
 import { Bullet } from './Models/Other/Bullet';
 import { Obstacle } from './Models/Obstacle/Obstacle';
 import { BulletOrigin } from './Models/Types/BulletType';
+import { Explosion } from './Effects/Explosion';
 
 export class App {
     public score: number = 0;
@@ -31,29 +32,6 @@ export class App {
 
     };
 
-    private loadAssets() {
-        this.app.loader.baseUrl = "../src/assets";
-        this.app.loader
-            .add("shipRight", "Ships/shipRight.png")
-            .add("enemyLeft", "Ships/plane_3_red.png")
-            .add("enemyLeft2", "Ships/plane_3_blue.png")
-            .add("enemyLeft3", "Ships/plane_3_yellow.png")
-            .add("bulletRight", "Bullets/bulletRight.png")
-            .add("bulletLeft", "Bullets/enemyBulletLeft.png")
-            .add("foreground", "Mountains/foreground_mountains.png")
-            .add("midground", "Mountains/midground_mountains.png")
-            .add("farground", "Mountains/farground_mountains.png")
-            .add("rock", "Obstacles/rock1.png")
-            .add("rock2", "Obstacles/rock2.png")
-            .add("rock3", "Obstacles/rock3.png")
-
-        this.app.loader.onProgress.add(this.showProgress);
-        this.app.loader.onComplete.add(() => this.doneLoading(this.app));
-        this.app.loader.onError.add(this.reportError);
-
-        this.app.loader.load();
-        this.app.stage.interactive = true;
-    }
     private collision(a: any, b: any) {
         const aBox = a.getBounds();
         const bBox = b.getBounds();
@@ -94,33 +72,6 @@ export class App {
         app.ticker.add(() => this.gameLoop(app));
     };
 
-
-
-    private reset() {
-
-        while (Enemy.enemies.length > 0) {
-            Enemy.enemies[0].removeEnemy();
-        };
-
-        while (Bullet.bullets.length > 0) {
-            Bullet.bullets[0].removeBullet();
-        };
-
-        while (Obstacle.obstacles.length > 0) {
-            Obstacle.obstacles[0].removeObstacle();
-        };
-
-        this.PLAYER.removePlayer();
-        this.PLAYER = new PlayerShip(this.app);
-        this.distanceTraveled = 0;
-
-        if (this.score > this.hiScore) {
-            this.hiScore = this.score;
-        };
-        this.score = 0;
-    };
-
-
     private gameLoop(app: PIXI.Application) {
         App.InfoText.text =
             `Lives: ${this.PLAYER.livesLeft}    Score: ${this.score}    HiScore: ${this.hiScore}    Distance traveled: ${this.distanceTraveled}`
@@ -148,10 +99,13 @@ export class App {
             setTimeout(() => this.keysPressed["32"] = false, 10);
         };
 
-        if (this.distanceTraveled % 60 === 0) new Enemy(app);
-        if (this.distanceTraveled % 250 === 0) new Obstacle(app);
+        if (this.distanceTraveled % 80 === 0) new Enemy(app);
+        if (this.distanceTraveled % 350 === 0) new Obstacle(app);
+        // if ( this.distanceTraveled === 80 ) {
+        //     const deleteThis: Explosion = new Explosion(app);
+        // };
         Enemy.enemies.forEach(enemy => {
-            if (Math.random() * 1000 < 5) {
+            if (Math.random() * 1000 < 3) {
                 enemy.fire();
             };
         });
@@ -159,6 +113,10 @@ export class App {
 
         Enemy.enemies.forEach((enemy) => {
             enemy.x -= enemy.movementSpeed;
+            if (enemy.isStriked) {
+                enemy.y += enemy.fallSpeed;
+                enemy.fallSpeed += 0.3;
+            };
             if (this.collision(enemy, this.PLAYER)) {
                 this.PLAYER.livesLeft--;
                 enemy.removeEnemy();
@@ -173,8 +131,15 @@ export class App {
             Enemy.enemies.forEach((enemy) => {
                 if (this.collision(enemy, bullet)) {
                     bullet.removeBullet();
-                    enemy.removeEnemy();
-                    this.score++;
+                    if (enemy.isStriked) {
+                        this.score += 2;
+                        enemy.removeEnemy();
+                    } else {
+                        enemy.isStriked = true;
+                        this.score++;
+                    };
+                    // enemy.isStriked = true;
+
                 };
             })
         });
@@ -186,5 +151,62 @@ export class App {
         });
         app.stage.addChild(App.InfoText);
 
+    };
+
+    private reset() {
+
+        while (Enemy.enemies.length > 0) {
+            Enemy.enemies[0].removeEnemy();
+        };
+
+        while (Bullet.bullets.length > 0) {
+            Bullet.bullets[0].removeBullet();
+        };
+
+        while (Obstacle.obstacles.length > 0) {
+            Obstacle.obstacles[0].removeObstacle();
+        };
+
+        this.PLAYER.removePlayer();
+        this.PLAYER = new PlayerShip(this.app);
+        this.distanceTraveled = 0;
+
+        if (this.score > this.hiScore) {
+            this.hiScore = this.score;
+        };
+        this.score = 0;
+    };
+
+    private loadAssets() {
+        this.app.loader.baseUrl = "../src/assets";
+        this.app.loader
+            .add("shipRight", "Ships/shipRight.png")
+            .add("enemyLeft", "Ships/plane_3_red.png")
+            .add("enemyLeft2", "Ships/plane_3_blue.png")
+            .add("enemyLeft3", "Ships/plane_3_yellow.png")
+            .add("bulletRight", "Bullets/bulletRight.png")
+            .add("bulletLeft", "Bullets/enemyBulletLeft.png")
+            .add("foreground", "Mountains/foreground_mountains.png")
+            .add("midground", "Mountains/midground_mountains.png")
+            .add("farground", "Mountains/farground_mountains.png")
+            .add("rock", "Obstacles/rock1.png")
+            .add("rock2", "Obstacles/rock2.png")
+            .add("rock3", "Obstacles/rock3.png")
+            .add("expl1", "Explosion/keyframes/explosion_01.png")
+            .add("expl2", "Explosion/keyframes/explosion_02.png")
+            .add("expl3", "Explosion/keyframes/explosion_03.png")
+            .add("expl4", "Explosion/keyframes/explosion_04.png")
+            .add("expl5", "Explosion/keyframes/explosion_05.png")
+            .add("expl6", "Explosion/keyframes/explosion_06.png")
+            .add("expl7", "Explosion/keyframes/explosion_07.png")
+            .add("expl8", "Explosion/keyframes/explosion_08.png")
+            .add("expl9", "Explosion/keyframes/explosion_09.png")
+
+        this.app.loader.onProgress.add(this.showProgress);
+        this.app.loader.onComplete.add(() => this.doneLoading(this.app));
+        this.app.loader.onError.add(this.reportError);
+
+        this.app.loader.load();
+        this.app.stage.interactive = true;
     };
 };
