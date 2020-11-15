@@ -2,14 +2,14 @@ import { Bullet } from '../../Models/Other/Bullet';
 import { BulletOrigin } from '../Types/BulletType';
 import { Explosion } from '../../Effects/Explosion';
 export class Enemy {
-    private static enemyShipsTypes: string[] = ["enemyLeft", "enemyLeft2", "enemyLeft3"];
     private sprite: PIXI.Sprite;
+    private _movementSpeed: number = 1;
     public static enemies: Enemy[] = [];
+    private static enemyShipsTypes: string[] = ["enemyLeft", "enemyLeft2", "enemyLeft3"];
     private shipType: string;
     private _fallSpeed: number = 0;
     private _isStriked: boolean = false;
 
-    private _movementSpeed: number = 1;
 
     public constructor(public app: PIXI.Application) {
         this.shipType = Enemy.enemyShipsTypes[Math.round(Math.random() * 2)];
@@ -64,18 +64,10 @@ export class Enemy {
     public set fallSpeed(value: number) {
         this._fallSpeed = value;
     };
-    
 
 
-    public getBounds(): any {
-        return this.sprite.getBounds();
-    };
 
-    public removeEnemy(explosion: boolean = true): void {
-        (explosion) && (new Explosion(this.app, this.sprite.x, this.sprite.y))
-        this.app.stage.removeChild(this.sprite);
-        Enemy.enemies.splice(Enemy.enemies.indexOf(this), 1);
-    };
+
     public fire(): Bullet {
         return (
             new Bullet((this.x - this.sprite.width / 2 - (
@@ -92,5 +84,13 @@ export class Enemy {
 
     private setSpeed(): number {
         return Enemy.enemyShipsTypes.indexOf(this.shipType) + 1;
+    };
+    public getBounds(): any {
+        return this.sprite.getBounds();
+    };
+    public removeEnemy(explosion: boolean = true): void {
+        (explosion) && (new Explosion(this.app, this.sprite.x, this.sprite.y))
+        this.app.stage.removeChild(this.sprite);
+        Enemy.enemies.splice(Enemy.enemies.indexOf(this), 1);
     };
 };

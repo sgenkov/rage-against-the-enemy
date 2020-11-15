@@ -4,8 +4,8 @@ import { Explosion } from '../../Effects/Explosion';
 export class PlayerShip {
 
     private sprite: PIXI.Sprite;
-    private _livesLeft: number = 3;
     private _movementSpeed: number = 5;
+    private _livesLeft: number = 3;
 
     public constructor(public app: PIXI.Application) {
         this.sprite = PIXI.Sprite.from(app.loader.resources.shipRight.url);
@@ -46,12 +46,12 @@ export class PlayerShip {
         this._livesLeft = value;
     };
 
-    public getBounds(): any {
-        return this.sprite.getBounds();
-    };
 
     public fire(): Bullet {
-        return new Bullet(this.x + this.sprite.width / 2 + 1, this.y + 5, BulletOrigin.player, this.app );
+        return new Bullet(this.x + this.sprite.width / 2 + 1, this.y + 5, BulletOrigin.player, this.app);
+    };
+    public getBounds(): any {
+        return this.sprite.getBounds();
     };
 
     public removePlayer(): void {

@@ -1,7 +1,7 @@
 import { BulletOrigin } from '../Types/BulletType';
 export class Bullet {
-    public static bullets: Bullet[] = [];
     private sprite: PIXI.Sprite;
+    public static bullets: Bullet[] = [];
     private _movementSpeed: number;
     public _origin: BulletOrigin;
 

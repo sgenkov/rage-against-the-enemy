@@ -185,9 +185,13 @@ class App {
             .add("foreground", "Mountains/foreground_mountains.png")
             .add("midground", "Mountains/midground_mountains.png")
             .add("farground", "Mountains/farground_mountains.png")
-            .add("rock", "Obstacles/rock1.png")
+            .add("rock1", "Obstacles/rock1.png")
             .add("rock2", "Obstacles/rock2.png")
             .add("rock3", "Obstacles/rock3.png")
+            .add("rock4", "Obstacles/rock4.png")
+            .add("rock5", "Obstacles/rock5.png")
+            .add("rock6", "Obstacles/rock6.png")
+            .add("rock7", "Obstacles/rock7.png")
             .add("expl1", "Explosion/keyframes/explosion_01.png")
             .add("expl2", "Explosion/keyframes/explosion_02.png")
             .add("expl3", "Explosion/keyframes/explosion_03.png")
@@ -258,9 +262,9 @@ const Explosion_1 = require("../../Effects/Explosion");
 class Enemy {
     constructor(app) {
         this.app = app;
+        this._movementSpeed = 1;
         this._fallSpeed = 0;
         this._isStriked = false;
-        this._movementSpeed = 1;
         this.shipType = Enemy.enemyShipsTypes[Math.round(Math.random() * 2)];
         this.sprite = PIXI.Sprite.from(app.loader.resources[this.shipType].url);
         this.sprite.scale.x = -0.1;
@@ -322,16 +326,6 @@ class Enemy {
         this._fallSpeed = value;
     }
     ;
-    getBounds() {
-        return this.sprite.getBounds();
-    }
-    ;
-    removeEnemy(explosion = true) {
-        (explosion) && (new Explosion_1.Explosion(this.app, this.sprite.x, this.sprite.y));
-        this.app.stage.removeChild(this.sprite);
-        Enemy.enemies.splice(Enemy.enemies.indexOf(this), 1);
-    }
-    ;
     fire() {
         return (new Bullet_1.Bullet((this.x - this.sprite.width / 2 - ((this.movementSpeed > 2)
             ? 9
@@ -342,10 +336,20 @@ class Enemy {
         return Enemy.enemyShipsTypes.indexOf(this.shipType) + 1;
     }
     ;
+    getBounds() {
+        return this.sprite.getBounds();
+    }
+    ;
+    removeEnemy(explosion = true) {
+        (explosion) && (new Explosion_1.Explosion(this.app, this.sprite.x, this.sprite.y));
+        this.app.stage.removeChild(this.sprite);
+        Enemy.enemies.splice(Enemy.enemies.indexOf(this), 1);
+    }
+    ;
 }
 exports.Enemy = Enemy;
-Enemy.enemyShipsTypes = ["enemyLeft", "enemyLeft2", "enemyLeft3"];
 Enemy.enemies = [];
+Enemy.enemyShipsTypes = ["enemyLeft", "enemyLeft2", "enemyLeft3"];
 ;
 
 },{"../../Effects/Explosion":2,"../../Models/Other/Bullet":5,"../Types/BulletType":7}],4:[function(require,module,exports){
@@ -356,7 +360,7 @@ class Obstacle {
     constructor(app) {
         this.app = app;
         this._movementSpeed = 2;
-        this.obstacleType = `${Obstacle.obstacleTypes[Math.round(Math.random() * 2)]}`;
+        this.obstacleType = `${Obstacle.obstacleTypes[Math.round(Math.random() * (Obstacle.obstacleTypes.length - 1))]}`;
         this.sprite = PIXI.Sprite.from(app.loader.resources[`${this.obstacleType}`].url);
         this.sprite.scale.x = Math.random() * 1 + 0.2;
         this.sprite.scale.y = Math.random() * 1 + 0.2;
@@ -406,8 +410,8 @@ class Obstacle {
     ;
 }
 exports.Obstacle = Obstacle;
-Obstacle.obstacleTypes = ["rock", "rock2", "rock3"];
 Obstacle.obstacles = [];
+Obstacle.obstacleTypes = ["rock1", "rock2", "rock3", "rock4", "rock5", "rock6", "rock7"];
 ;
 
 },{}],5:[function(require,module,exports){
@@ -491,8 +495,8 @@ const Explosion_1 = require("../../Effects/Explosion");
 class PlayerShip {
     constructor(app) {
         this.app = app;
-        this._livesLeft = 3;
         this._movementSpeed = 5;
+        this._livesLeft = 3;
         this.sprite = PIXI.Sprite.from(app.loader.resources.shipRight.url);
         this.sprite.scale.x = 0.1;
         this.sprite.scale.y = 0.1;
@@ -534,12 +538,12 @@ class PlayerShip {
         this._livesLeft = value;
     }
     ;
-    getBounds() {
-        return this.sprite.getBounds();
-    }
-    ;
     fire() {
         return new Bullet_1.Bullet(this.x + this.sprite.width / 2 + 1, this.y + 5, BulletType_1.BulletOrigin.player, this.app);
+    }
+    ;
+    getBounds() {
+        return this.sprite.getBounds();
     }
     ;
     removePlayer() {
