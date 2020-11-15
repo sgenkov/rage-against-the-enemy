@@ -98,9 +98,6 @@ class App {
             new Enemy_1.Enemy(app);
         if (this.distanceTraveled % 350 === 0)
             new Obstacle_1.Obstacle(app);
-        // if ( this.distanceTraveled === 80 ) {
-        //     const deleteThis: Explosion = new Explosion(app);
-        // };
         Enemy_1.Enemy.enemies.forEach(enemy => {
             if (Math.random() * 1000 < 3) {
                 enemy.fire();
@@ -140,7 +137,6 @@ class App {
                         this.score++;
                     }
                     ;
-                    // enemy.isStriked = true;
                 }
                 ;
             });
@@ -156,7 +152,7 @@ class App {
     ;
     reset() {
         while (Enemy_1.Enemy.enemies.length > 0) {
-            Enemy_1.Enemy.enemies[0].removeEnemy();
+            Enemy_1.Enemy.enemies[0].removeEnemy(false);
         }
         ;
         while (Bullet_1.Bullet.bullets.length > 0) {
@@ -273,17 +269,12 @@ class Enemy {
         this.sprite.y = Math.random() * (app.view.height - 45) + 20;
         this.sprite.anchor.set(0.5);
         this.movementSpeed = this.setSpeed();
-        // this.sprite.rotation=Math.atan(this._fallSpeed / this._movementSpeed);
-        Enemy.generatedEnemies++;
         Enemy.enemies.push(this);
         app.stage.addChild(this.sprite);
     }
     ;
     set x(value) {
         this.sprite.x = value;
-        // if(this._isStriked){
-        //     this.sprite.rotation = -Math.atan(this._fallSpeed / this._movementSpeed);
-        // };
         this.sprite.rotation = -Math.atan(this._fallSpeed / this._movementSpeed);
         if (value < -this.sprite.width) {
             this.removeEnemy();
@@ -335,8 +326,8 @@ class Enemy {
         return this.sprite.getBounds();
     }
     ;
-    removeEnemy() {
-        new Explosion_1.Explosion(this.app, this.sprite.x, this.sprite.y);
+    removeEnemy(explosion = true) {
+        (explosion) && (new Explosion_1.Explosion(this.app, this.sprite.x, this.sprite.y));
         this.app.stage.removeChild(this.sprite);
         Enemy.enemies.splice(Enemy.enemies.indexOf(this), 1);
     }
@@ -353,7 +344,6 @@ class Enemy {
     ;
 }
 exports.Enemy = Enemy;
-Enemy.generatedEnemies = 0;
 Enemy.enemyShipsTypes = ["enemyLeft", "enemyLeft2", "enemyLeft3"];
 Enemy.enemies = [];
 ;
@@ -509,7 +499,6 @@ class PlayerShip {
         this.sprite.x = this.sprite.width / 2;
         this.sprite.y = app.view.height / 2;
         this.sprite.anchor.set(0.5);
-        ++PlayerShip.shipsCreated; // for later use
         app.stage.addChild(this.sprite);
     }
     ;
@@ -560,7 +549,6 @@ class PlayerShip {
     ;
 }
 exports.PlayerShip = PlayerShip;
-PlayerShip.shipsCreated = 0;
 ;
 
 },{"../../Effects/Explosion":2,"../Other/Bullet":5,"../Types/BulletType":7}],7:[function(require,module,exports){

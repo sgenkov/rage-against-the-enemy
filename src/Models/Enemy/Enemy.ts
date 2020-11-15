@@ -2,7 +2,6 @@ import { Bullet } from '../../Models/Other/Bullet';
 import { BulletOrigin } from '../Types/BulletType';
 import { Explosion } from '../../Effects/Explosion';
 export class Enemy {
-    public static generatedEnemies: number = 0;
     private static enemyShipsTypes: string[] = ["enemyLeft", "enemyLeft2", "enemyLeft3"];
     private sprite: PIXI.Sprite;
     public static enemies: Enemy[] = [];
@@ -21,17 +20,12 @@ export class Enemy {
         this.sprite.y = Math.random() * (app.view.height - 45) + 20;
         this.sprite.anchor.set(0.5);
         this.movementSpeed = this.setSpeed();
-        // this.sprite.rotation=Math.atan(this._fallSpeed / this._movementSpeed);
-        Enemy.generatedEnemies++;
         Enemy.enemies.push(this);
         app.stage.addChild(this.sprite);
     };
 
     public set x(value: number) {
         this.sprite.x = value;
-        // if(this._isStriked){
-        //     this.sprite.rotation = -Math.atan(this._fallSpeed / this._movementSpeed);
-        // };
         this.sprite.rotation = -Math.atan(this._fallSpeed / this._movementSpeed);
         if (value < - this.sprite.width) {
             this.removeEnemy();
@@ -77,8 +71,8 @@ export class Enemy {
         return this.sprite.getBounds();
     };
 
-    public removeEnemy(): void {
-        new Explosion(this.app, this.sprite.x, this.sprite.y);
+    public removeEnemy(explosion: boolean = true): void {
+        (explosion) && (new Explosion(this.app, this.sprite.x, this.sprite.y))
         this.app.stage.removeChild(this.sprite);
         Enemy.enemies.splice(Enemy.enemies.indexOf(this), 1);
     };
@@ -99,11 +93,4 @@ export class Enemy {
     private setSpeed(): number {
         return Enemy.enemyShipsTypes.indexOf(this.shipType) + 1;
     };
-
-    // public deadlyStricken(): void {
-    //     setInterval(() => {
-    //         this.y += this.fallSpeed;
-    //     }, 100);
-    // };
-
 };

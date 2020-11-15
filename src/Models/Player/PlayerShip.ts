@@ -3,7 +3,6 @@ import { BulletOrigin } from '../Types/BulletType';
 import { Explosion } from '../../Effects/Explosion';
 export class PlayerShip {
 
-    public static shipsCreated = 0;
     private sprite: PIXI.Sprite;
     private _livesLeft: number = 3;
     private _movementSpeed: number = 5;
@@ -15,7 +14,6 @@ export class PlayerShip {
         this.sprite.x = this.sprite.width / 2;
         this.sprite.y = app.view.height / 2;
         this.sprite.anchor.set(0.5);
-        ++PlayerShip.shipsCreated; // for later use
         app.stage.addChild(this.sprite);
     };
 

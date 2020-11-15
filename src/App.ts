@@ -4,7 +4,6 @@ import { Parallax } from './Parallax/Parallax';
 import { Bullet } from './Models/Other/Bullet';
 import { Obstacle } from './Models/Obstacle/Obstacle';
 import { BulletOrigin } from './Models/Types/BulletType';
-import { Explosion } from './Effects/Explosion';
 
 export class App {
     public score: number = 0;
@@ -101,9 +100,6 @@ export class App {
 
         if (this.distanceTraveled % 80 === 0) new Enemy(app);
         if (this.distanceTraveled % 350 === 0) new Obstacle(app);
-        // if ( this.distanceTraveled === 80 ) {
-        //     const deleteThis: Explosion = new Explosion(app);
-        // };
         Enemy.enemies.forEach(enemy => {
             if (Math.random() * 1000 < 3) {
                 enemy.fire();
@@ -138,8 +134,6 @@ export class App {
                         enemy.isStriked = true;
                         this.score++;
                     };
-                    // enemy.isStriked = true;
-
                 };
             })
         });
@@ -156,7 +150,7 @@ export class App {
     private reset() {
 
         while (Enemy.enemies.length > 0) {
-            Enemy.enemies[0].removeEnemy();
+            Enemy.enemies[0].removeEnemy(false);
         };
 
         while (Bullet.bullets.length > 0) {
