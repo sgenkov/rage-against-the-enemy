@@ -27,6 +27,10 @@ export class App {
         document.addEventListener("keydown", this.keysDown.bind(this));
         document.addEventListener("keyup", this.keysUp.bind(this));
         document.body.addEventListener("pointerdown", () => this.PLAYER.fire());
+        document.body.addEventListener("contextmenu", (e) => {
+            e.preventDefault();
+        });
+
         App.InfoText.position.y = app.view.height - App.InfoText.height;
 
     };
