@@ -425,7 +425,6 @@ const BulletType_1 = require("../Types/BulletType");
 class Bullet {
     constructor(ownerX, ownerY, origin, app) {
         this.app = app;
-        const bullet = (origin === BulletType_1.BulletOrigin.player ? "bulletRight" : "bulletLeft");
         this.sprite = PIXI.Sprite.from(app.loader.resources[(origin === BulletType_1.BulletOrigin.player) ? "bulletRight" : "bulletLeft"].url);
         this.sprite.x = ownerX;
         this.sprite.y = ownerY;
