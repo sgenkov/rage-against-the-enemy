@@ -6,7 +6,6 @@ export class Bullet {
     public _origin: BulletOrigin;
 
     public constructor(ownerX: number, ownerY: number, origin: BulletOrigin, public app: PIXI.Application) {
-        const bullet = (origin === BulletOrigin.player ? "bulletRight" : "bulletLeft")
         this.sprite = PIXI.Sprite.from(app.loader.resources[(origin === BulletOrigin.player) ? "bulletRight" : "bulletLeft"].url);
         this.sprite.x = ownerX;
         this.sprite.y = ownerY;
