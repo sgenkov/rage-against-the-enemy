@@ -1,4 +1,4 @@
-export class Explosion {
+export class BonusLive {
 
     private textureContainer: PIXI.Texture[] = [];
 
