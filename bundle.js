@@ -8,6 +8,7 @@ const Parallax_1 = require("./Parallax/Parallax");
 const Bullet_1 = require("./Models/Other/Bullet");
 const Obstacle_1 = require("./Models/Obstacle/Obstacle");
 const BulletType_1 = require("./Models/Types/BulletType");
+const Explosion_1 = require("./Effects/Explosion");
 class App {
     constructor(app) {
         this.app = app;
@@ -124,15 +125,18 @@ class App {
         Bullet_1.Bullet.bullets.forEach((bullet) => {
             bullet.x += bullet.movementSpeed;
             if (this.collision(bullet, this.PLAYER)) {
+                new Explosion_1.Explosion(app, bullet.x, bullet.y, true);
                 bullet.removeBullet();
                 this.PLAYER.livesLeft--;
             }
             ;
             Enemy_1.Enemy.enemies.forEach((enemy) => {
                 if (this.collision(enemy, bullet)) {
+                    new Explosion_1.Explosion(app, bullet.x, bullet.y, true);
                     bullet.removeBullet();
                     if (enemy.isStriked) {
                         this.score += 2;
+                        new Explosion_1.Explosion(app, bullet.x, bullet.y, true);
                         enemy.removeEnemy();
                     }
                     else {
@@ -222,12 +226,12 @@ App.InfoText = new PIXI.Text("Score: ", {
 });
 ;
 
-},{"./Models/Enemy/Enemy":3,"./Models/Obstacle/Obstacle":4,"./Models/Other/Bullet":5,"./Models/Player/PlayerShip":6,"./Models/Types/BulletType":7,"./Parallax/Parallax":8}],2:[function(require,module,exports){
+},{"./Effects/Explosion":2,"./Models/Enemy/Enemy":3,"./Models/Obstacle/Obstacle":4,"./Models/Other/Bullet":5,"./Models/Player/PlayerShip":6,"./Models/Types/BulletType":7,"./Parallax/Parallax":8}],2:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Explosion = void 0;
 class Explosion {
-    constructor(app, positionX = app.view.width / 2, positionY = app.view.height / 2) {
+    constructor(app, positionX = app.view.width / 2, positionY = app.view.height / 2, smallBlast = false) {
         this.playerSheet = [];
         this.playerSheet.push(PIXI.Texture.from(app.loader.resources["expl1"].url));
         this.playerSheet.push(PIXI.Texture.from(app.loader.resources["expl2"].url));
@@ -242,8 +246,8 @@ class Explosion {
         this.blast.anchor.set(0.5);
         this.blast.animationSpeed = 0.5;
         this.blast.loop = false;
-        this.blast.scale.x = 0.3;
-        this.blast.scale.y = 0.3;
+        this.blast.scale.x = smallBlast ? 0.1 : 0.3;
+        this.blast.scale.y = smallBlast ? 0.1 : 0.3;
         this.blast.x = positionX;
         this.blast.y = positionY;
         app.stage.addChild(this.blast);

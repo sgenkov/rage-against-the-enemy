@@ -4,6 +4,7 @@ import { Parallax } from './Parallax/Parallax';
 import { Bullet } from './Models/Other/Bullet';
 import { Obstacle } from './Models/Obstacle/Obstacle';
 import { BulletOrigin } from './Models/Types/BulletType';
+import { Explosion } from './Effects/Explosion';
 
 export class App {
     public score: number = 0;
@@ -125,14 +126,17 @@ export class App {
         Bullet.bullets.forEach((bullet) => {
             bullet.x += bullet.movementSpeed;
             if (this.collision(bullet, this.PLAYER)) {
+                new Explosion(app, bullet.x, bullet.y, true);
                 bullet.removeBullet();
                 this.PLAYER.livesLeft--;
             };
             Enemy.enemies.forEach((enemy) => {
                 if (this.collision(enemy, bullet)) {
+                    new Explosion(app, bullet.x, bullet.y, true);
                     bullet.removeBullet();
                     if (enemy.isStriked) {
                         this.score += 2;
+                        new Explosion(app, bullet.x, bullet.y, true);
                         enemy.removeEnemy();
                     } else {
                         enemy.isStriked = true;
