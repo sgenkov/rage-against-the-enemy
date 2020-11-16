@@ -7,10 +7,11 @@ import { BulletOrigin } from './Models/Types/BulletType';
 import { Explosion } from './Effects/Explosion';
 
 export class App {
-    public score: number = 0;
-    public distanceTraveled: number = 0;
-    public hiScore: number = 0;
-    public keysPressed: any = {};
+    private score: number = 0;
+    private distanceTraveled: number = 0;
+    private hiScore: number = 0;
+    private keysPressed: any = {};
+    
 
     static InfoText: PIXI.Text = new PIXI.Text("Score: ", {
         fontSize: 35,
@@ -206,7 +207,11 @@ export class App {
             .add("expl6", "Explosion/keyframes/explosion_06.png")
             .add("expl7", "Explosion/keyframes/explosion_07.png")
             .add("expl8", "Explosion/keyframes/explosion_08.png")
-            .add("expl9", "Explosion/keyframes/explosion_09.png")
+            .add("expl9", "Explosion/keyframes/explosion_09.png");
+             for (let i = 1; i <= 30; ++i) {
+                 this.app.loader.add(`live${i}`, `BonusLive/live${i}.png`);
+             };
+
 
         this.app.loader.onProgress.add(this.showProgress);
         this.app.loader.onComplete.add(() => this.doneLoading(this.app));
