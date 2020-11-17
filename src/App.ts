@@ -104,6 +104,10 @@ export class App {
             this.PLAYER.fire();
             setTimeout(() => this.keysPressed["32"] = false, 10);
         };
+        if (this.keysPressed["81"] === true) { // DELETE THISS++++++++======================================
+            console.log(Bullet.bullets);
+            setTimeout(() => this.keysPressed["81"] = false, 10);
+        };// DELETE THISS++++++++======================================++++++++++++++++++++++++++++++++++++======
 
         if (this.distanceTraveled % 80 === 0) new Enemy(app);
         if (this.distanceTraveled % 350 === 0) new Obstacle(app);
@@ -180,6 +184,7 @@ export class App {
         while (Bullet.bullets.length > 0) {
             Bullet.bullets[0].removeBullet();
         };
+        this.newBonusLife && this.newBonusLife.removeBonusLife();
 
         while (Obstacle.obstacles.length > 0) {
             Obstacle.obstacles[0].removeObstacle();

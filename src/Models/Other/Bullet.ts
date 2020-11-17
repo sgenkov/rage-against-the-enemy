@@ -1,4 +1,5 @@
 import { BulletOrigin } from '../Types/BulletType';
+
 export class Bullet {
     private sprite: PIXI.Sprite;
     public static bullets: Bullet[] = [];
@@ -20,7 +21,7 @@ export class Bullet {
 
     public set x(value: number) {
         this.sprite.x = value;
-        if ((value > 10 + this.app.view.width - this.sprite.width / 2) || (value < -10)) {
+        if ((value > 10 + this.app.view.width) || (value < -10)) {
             this.removeBullet();
         };
     };
