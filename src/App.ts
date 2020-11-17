@@ -5,14 +5,14 @@ import { Bullet } from './Models/Other/Bullet';
 import { Obstacle } from './Models/Obstacle/Obstacle';
 import { BulletOrigin } from './Models/Types/BulletType';
 import { Explosion } from './Effects/Explosion';
-
+import { BonusLife } from './Models/Other/BonusLife';
 export class App {
     private score: number = 0;
     private distanceTraveled: number = 0;
     private hiScore: number = 0;
     private keysPressed: any = {};
     
-
+    
     static InfoText: PIXI.Text = new PIXI.Text("Score: ", {
         fontSize: 35,
         fill: "#ffaa",
@@ -20,7 +20,8 @@ export class App {
         stroke: "#bbbbbb",
         strokeThickness: 0,
     });
-
+    
+    private newBonusLife: BonusLife;
     private PLAYER: PlayerShip;
     private PARALLAX: Parallax;
     constructor(public app: PIXI.Application) {
@@ -106,6 +107,20 @@ export class App {
 
         if (this.distanceTraveled % 80 === 0) new Enemy(app);
         if (this.distanceTraveled % 350 === 0) new Obstacle(app);
+        if ((this.distanceTraveled % 500 === 0) && ((this.score / this.distanceTraveled ) > 0.02 )) {
+            this.newBonusLife = new BonusLife(app);
+            this.newBonusLife.isInRange = true;
+        };
+
+        if (this.newBonusLife) {
+            if (this.newBonusLife.isInRange) {
+                this.newBonusLife.x -= this.newBonusLife.movementSpeed;
+                if (this.collision(this.PLAYER, this.newBonusLife)) {
+                    this.PLAYER.livesLeft ++;
+                    this.newBonusLife.removeBonusLife();
+                };
+            };
+        };
         Enemy.enemies.forEach(enemy => {
             if (Math.random() * 1000 < 3) {
                 enemy.fire();
@@ -208,9 +223,9 @@ export class App {
             .add("expl7", "Explosion/keyframes/explosion_07.png")
             .add("expl8", "Explosion/keyframes/explosion_08.png")
             .add("expl9", "Explosion/keyframes/explosion_09.png");
-             for (let i = 1; i <= 30; ++i) {
-                 this.app.loader.add(`live${i}`, `BonusLive/live${i}.png`);
-             };
+        for (let i = 1; i <= 30; ++i) {
+            this.app.loader.add(`live${i}`, `BonusLive/live${i}.png`);
+        };
 
 
         this.app.loader.onProgress.add(this.showProgress);
