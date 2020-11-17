@@ -16,5 +16,6 @@ CONTROLS - W, A, S, D, Space, L-click
 
  There are freezing bullets sometimes. This is a further application, please ignore it :)
 
- If you are not a lazy player and strike your enemies regularly - You will be rewarded with a bonus life. You just have to catch it
+ If you are not a lazy player and strike your enemies regularly(better strike them twice) - You will be rewarded with a bonus life.
+  You just have to catch it
 
