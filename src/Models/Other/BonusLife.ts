@@ -7,7 +7,7 @@ export class BonusLife {
     public isInRange: boolean = false;
 
     private _movementSpeed: number = 4;
-    public constructor(private app: PIXI.Application, positionX: number = app.view.width, positionY: number = app.view.height/2) {
+    public constructor(private app: PIXI.Application) {
         for (let i = 1; i <= 30; ++i) {
             this.textureContainer.push(PIXI.Texture.from(app.loader.resources[`live${i}`].url));
         };
@@ -18,8 +18,8 @@ export class BonusLife {
         this.bonusLife.loop = true;
         this.bonusLife.scale.x =  0.3;
         this.bonusLife.scale.y =  0.3;
-        this.bonusLife.x = positionX;
-        this.bonusLife.y = positionY;
+        this.bonusLife.x = app.view.width;
+        this.bonusLife.y =  Math.random() * (app.view.height - 250) + this.bonusLife.height/2  ;
         app.stage.addChild(this.bonusLife);
         this.bonusLife.play();
         // setTimeout(() => {app.stage.removeChild(this.bonusLive)}, 100);      
