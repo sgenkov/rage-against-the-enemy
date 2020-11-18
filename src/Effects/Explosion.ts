@@ -1,9 +1,10 @@
+import { app } from '../index';
 export class Explosion {
 
     private textureContainer: PIXI.Texture[] = [];
 
     private blast: PIXI.extras.AnimatedSprite;
-    constructor(app: PIXI.Application, positionX: number = app.view.width / 2, positionY: number = app.view.height / 2, smallBlast: boolean = false) {
+    constructor(positionX: number = app.view.width / 2, positionY: number = app.view.height / 2, smallBlast: boolean = false) {
         for (let i = 1; i <= 9; ++i) {
             this.textureContainer.push(PIXI.Texture.from(app.loader.resources[`expl${i}`].url));
         };

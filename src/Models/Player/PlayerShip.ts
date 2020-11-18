@@ -1,13 +1,14 @@
 import { Bullet } from '../Other/Bullet';
 import { BulletOrigin } from '../Types/BulletType';
 import { Explosion } from '../../Effects/Explosion';
+import { app } from '../../index';
 export class PlayerShip {
 
     private sprite: PIXI.Sprite;
     private _movementSpeed: number = 5;
     private _livesLeft: number = 3;
 
-    public constructor(public app: PIXI.Application) {
+    public constructor() {
         this.sprite = PIXI.Sprite.from(app.loader.resources.shipRight.url);
         this.sprite.scale.x = 0.1;
         this.sprite.scale.y = 0.1;
@@ -48,14 +49,14 @@ export class PlayerShip {
 
 
     public fire(): Bullet {
-        return new Bullet(this.x + this.sprite.width / 2 + 1, this.y + 5, BulletOrigin.player, this.app);
+        return new Bullet(this.x + this.sprite.width / 2 + 1, this.y + 5, BulletOrigin.player);
     };
     public getBounds(): any {
         return this.sprite.getBounds();
     };
 
     public removePlayer(): void {
-        new Explosion(this.app, this.sprite.x, this.sprite.y)
-        this.app.stage.removeChild(this.sprite);
+        new Explosion(this.sprite.x, this.sprite.y)
+        app.stage.removeChild(this.sprite);
     };
 };

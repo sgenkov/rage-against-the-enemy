@@ -10,22 +10,22 @@ const Obstacle_1 = require("./Models/Obstacle/Obstacle");
 const BulletType_1 = require("./Models/Types/BulletType");
 const Explosion_1 = require("./Effects/Explosion");
 const BonusLife_1 = require("./Models/Other/BonusLife");
+const index_1 = require("./index");
 class App {
-    constructor(app) {
-        this.app = app;
+    constructor() {
         this.score = 0;
         this.distanceTraveled = 0;
         this.hiScore = 0;
         this.keysPressed = {};
         this.loadAssets();
-        document.body.appendChild(this.app.view);
+        document.body.appendChild(index_1.app.view);
         document.addEventListener("keydown", this.keysDown.bind(this));
         document.addEventListener("keyup", this.keysUp.bind(this));
         document.body.addEventListener("pointerdown", () => this.PLAYER.fire());
         document.body.addEventListener("contextmenu", (e) => {
             e.preventDefault();
         });
-        App.InfoText.position.y = app.view.height - App.InfoText.height;
+        App.InfoText.position.y = index_1.app.view.height - App.InfoText.height;
     }
     ;
     collision(a, b) {
@@ -64,8 +64,8 @@ class App {
     }
     ;
     doneLoading(app) {
-        this.PARALLAX = new Parallax_1.Parallax("farground", "midground", "foreground", app);
-        this.PLAYER = new PlayerShip_1.PlayerShip(app);
+        this.PARALLAX = new Parallax_1.Parallax("farground", "midground", "foreground");
+        this.PLAYER = new PlayerShip_1.PlayerShip();
         app.ticker.add(() => this.gameLoop(app));
     }
     ;
@@ -105,9 +105,9 @@ class App {
         }
         ; // DELETE THISS++++++++======================================++++++++++++++++++++++++++++++++++++======
         if (this.distanceTraveled % 80 === 0)
-            new Enemy_1.Enemy(app);
+            new Enemy_1.Enemy();
         if (this.distanceTraveled % 350 === 0)
-            new Obstacle_1.Obstacle(app);
+            new Obstacle_1.Obstacle();
         if ((this.distanceTraveled % 500 === 0) && ((this.score / this.distanceTraveled) > 0.02)) {
             this.newBonusLife = new BonusLife_1.BonusLife(app);
             this.newBonusLife.isInRange = true;
@@ -146,30 +146,32 @@ class App {
             ;
         });
         Bullet_1.Bullet.bullets.forEach((bullet) => {
-            bullet.x += bullet.movementSpeed;
-            if (this.collision(bullet, this.PLAYER)) {
-                new Explosion_1.Explosion(app, bullet.x, bullet.y, true);
-                bullet.removeBullet();
-                this.PLAYER.livesLeft--;
-            }
-            ;
-            Enemy_1.Enemy.enemies.forEach((enemy) => {
-                if (this.collision(enemy, bullet)) {
-                    new Explosion_1.Explosion(app, bullet.x, bullet.y, true);
+            if (bullet.isAlive === true) {
+                bullet.x += bullet.movementSpeed;
+                if (this.collision(bullet, this.PLAYER)) {
+                    new Explosion_1.Explosion(bullet.x, bullet.y, true);
                     bullet.removeBullet();
-                    if (enemy.isStriked) {
-                        this.score += 2;
-                        new Explosion_1.Explosion(app, bullet.x, bullet.y, true);
-                        enemy.removeEnemy();
-                    }
-                    else {
-                        enemy.isStriked = true;
-                        this.score++;
-                    }
-                    ;
+                    this.PLAYER.livesLeft--;
                 }
                 ;
-            });
+                Enemy_1.Enemy.enemies.forEach((enemy) => {
+                    if (this.collision(enemy, bullet)) {
+                        new Explosion_1.Explosion(bullet.x, bullet.y, true);
+                        bullet.removeBullet();
+                        if (enemy.isStriked) {
+                            this.score += 2;
+                            new Explosion_1.Explosion(bullet.x, bullet.y, true);
+                            enemy.removeEnemy();
+                        }
+                        else {
+                            enemy.isStriked = true;
+                            this.score++;
+                        }
+                        ;
+                    }
+                    ;
+                });
+            }
         });
         Obstacle_1.Obstacle.obstacles.forEach((obstacle) => {
             if (this.collision(obstacle, this.PLAYER)) {
@@ -178,24 +180,30 @@ class App {
             ;
         });
         app.stage.addChild(App.InfoText);
+        if (this.distanceTraveled % 200 === 0) {
+            app.stop();
+            Bullet_1.Bullet.bullets = Bullet_1.Bullet.bullets.filter(bullet => bullet.isAlive === true);
+            app.start();
+        }
+        ;
     }
     ;
     reset() {
+        index_1.app.stop();
         while (Enemy_1.Enemy.enemies.length > 0) {
             Enemy_1.Enemy.enemies[0].removeEnemy(false);
+            console.log('ENEMIES CLEAR');
         }
         ;
-        while (Bullet_1.Bullet.bullets.length > 0) {
-            Bullet_1.Bullet.bullets[0].removeBullet();
-        }
-        ;
+        Bullet_1.Bullet.bullets = Bullet_1.Bullet.bullets.filter(bullet => bullet.isAlive === true);
         this.newBonusLife && this.newBonusLife.removeBonusLife();
         while (Obstacle_1.Obstacle.obstacles.length > 0) {
             Obstacle_1.Obstacle.obstacles[0].removeObstacle();
         }
         ;
         this.PLAYER.removePlayer();
-        this.PLAYER = new PlayerShip_1.PlayerShip(this.app);
+        index_1.app.start();
+        this.PLAYER = new PlayerShip_1.PlayerShip();
         this.distanceTraveled = 0;
         if (this.score > this.hiScore) {
             this.hiScore = this.score;
@@ -205,8 +213,8 @@ class App {
     }
     ;
     loadAssets() {
-        this.app.loader.baseUrl = "../src/assets";
-        this.app.loader
+        index_1.app.loader.baseUrl = "../src/assets";
+        index_1.app.loader
             .add("shipRight", "Ships/shipRight.png")
             .add("enemyLeft", "Ships/plane_3_red.png")
             .add("enemyLeft2", "Ships/plane_3_blue.png")
@@ -233,14 +241,14 @@ class App {
             .add("expl8", "Explosion/keyframes/explosion_08.png")
             .add("expl9", "Explosion/keyframes/explosion_09.png");
         for (let i = 1; i <= 30; ++i) {
-            this.app.loader.add(`live${i}`, `BonusLive/live${i}.png`);
+            index_1.app.loader.add(`live${i}`, `BonusLive/live${i}.png`);
         }
         ;
-        this.app.loader.onProgress.add(this.showProgress);
-        this.app.loader.onComplete.add(() => this.doneLoading(this.app));
-        this.app.loader.onError.add(this.reportError);
-        this.app.loader.load();
-        this.app.stage.interactive = true;
+        index_1.app.loader.onProgress.add(this.showProgress);
+        index_1.app.loader.onComplete.add(() => this.doneLoading(index_1.app));
+        index_1.app.loader.onError.add(this.reportError);
+        index_1.app.loader.load();
+        index_1.app.stage.interactive = true;
     }
     ;
 }
@@ -254,15 +262,16 @@ App.InfoText = new PIXI.Text("Score: ", {
 });
 ;
 
-},{"./Effects/Explosion":2,"./Models/Enemy/Enemy":3,"./Models/Obstacle/Obstacle":4,"./Models/Other/BonusLife":5,"./Models/Other/Bullet":6,"./Models/Player/PlayerShip":7,"./Models/Types/BulletType":8,"./Parallax/Parallax":9}],2:[function(require,module,exports){
+},{"./Effects/Explosion":2,"./Models/Enemy/Enemy":3,"./Models/Obstacle/Obstacle":4,"./Models/Other/BonusLife":5,"./Models/Other/Bullet":6,"./Models/Player/PlayerShip":7,"./Models/Types/BulletType":8,"./Parallax/Parallax":9,"./index":10}],2:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Explosion = void 0;
+const index_1 = require("../index");
 class Explosion {
-    constructor(app, positionX = app.view.width / 2, positionY = app.view.height / 2, smallBlast = false) {
+    constructor(positionX = index_1.app.view.width / 2, positionY = index_1.app.view.height / 2, smallBlast = false) {
         this.textureContainer = [];
         for (let i = 1; i <= 9; ++i) {
-            this.textureContainer.push(PIXI.Texture.from(app.loader.resources[`expl${i}`].url));
+            this.textureContainer.push(PIXI.Texture.from(index_1.app.loader.resources[`expl${i}`].url));
         }
         ;
         this.blast = new PIXI.extras.AnimatedSprite(this.textureContainer);
@@ -273,38 +282,38 @@ class Explosion {
         this.blast.scale.y = smallBlast ? 0.1 : 0.3;
         this.blast.x = positionX;
         this.blast.y = positionY;
-        app.stage.addChild(this.blast);
+        index_1.app.stage.addChild(this.blast);
         this.blast.play();
-        setTimeout(() => { app.stage.removeChild(this.blast); }, 400);
+        setTimeout(() => { index_1.app.stage.removeChild(this.blast); }, 400);
     }
     ;
 }
 exports.Explosion = Explosion;
 ;
 
-},{}],3:[function(require,module,exports){
+},{"../index":10}],3:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Enemy = void 0;
 const Bullet_1 = require("../../Models/Other/Bullet");
 const BulletType_1 = require("../Types/BulletType");
 const Explosion_1 = require("../../Effects/Explosion");
+const index_1 = require("../../index");
 class Enemy {
-    constructor(app) {
-        this.app = app;
+    constructor() {
         this._movementSpeed = 1;
         this._fallSpeed = 0;
         this._isStriked = false;
         this.shipType = Enemy.enemyShipsTypes[Math.round(Math.random() * 2)];
-        this.sprite = PIXI.Sprite.from(app.loader.resources[this.shipType].url);
+        this.sprite = PIXI.Sprite.from(index_1.app.loader.resources[this.shipType].url);
         this.sprite.scale.x = -0.1;
         this.sprite.scale.y = 0.1;
-        this.sprite.x = app.view.width + this.sprite.width;
-        this.sprite.y = Math.random() * (app.view.height - 45) + 20;
+        this.sprite.x = index_1.app.view.width + this.sprite.width;
+        this.sprite.y = Math.random() * (index_1.app.view.height - 45) + 20;
         this.sprite.anchor.set(0.5);
         this.movementSpeed = this.setSpeed();
         Enemy.enemies.push(this);
-        app.stage.addChild(this.sprite);
+        index_1.app.stage.addChild(this.sprite);
     }
     ;
     set x(value) {
@@ -322,7 +331,7 @@ class Enemy {
     ;
     set y(value) {
         this.sprite.y = value;
-        if (this.sprite.y > this.app.view.height - this.sprite.height) {
+        if (this.sprite.y > index_1.app.view.height - this.sprite.height) {
             this.removeEnemy();
         }
         ;
@@ -359,7 +368,7 @@ class Enemy {
     fire() {
         return (new Bullet_1.Bullet((this.x - this.sprite.width / 2 - ((this.movementSpeed > 2)
             ? 9
-            : 8)), this.y + 5, BulletType_1.BulletOrigin.enemy, this.app));
+            : 8)), this.y + 5, BulletType_1.BulletOrigin.enemy));
     }
     ;
     setSpeed() {
@@ -371,8 +380,8 @@ class Enemy {
     }
     ;
     removeEnemy(explosion = true) {
-        (explosion) && (new Explosion_1.Explosion(this.app, this.sprite.x, this.sprite.y));
-        this.app.stage.removeChild(this.sprite);
+        (explosion) && (new Explosion_1.Explosion(this.sprite.x, this.sprite.y));
+        index_1.app.stage.removeChild(this.sprite);
         Enemy.enemies.splice(Enemy.enemies.indexOf(this), 1);
     }
     ;
@@ -382,23 +391,23 @@ Enemy.enemies = [];
 Enemy.enemyShipsTypes = ["enemyLeft", "enemyLeft2", "enemyLeft3"];
 ;
 
-},{"../../Effects/Explosion":2,"../../Models/Other/Bullet":6,"../Types/BulletType":8}],4:[function(require,module,exports){
+},{"../../Effects/Explosion":2,"../../Models/Other/Bullet":6,"../../index":10,"../Types/BulletType":8}],4:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Obstacle = void 0;
+const index_1 = require("../../index");
 class Obstacle {
-    constructor(app) {
-        this.app = app;
+    constructor() {
         this._movementSpeed = 2;
         this.obstacleType = `${Obstacle.obstacleTypes[Math.round(Math.random() * (Obstacle.obstacleTypes.length - 1))]}`;
-        this.sprite = PIXI.Sprite.from(app.loader.resources[`${this.obstacleType}`].url);
+        this.sprite = PIXI.Sprite.from(index_1.app.loader.resources[`${this.obstacleType}`].url);
         this.sprite.scale.x = Math.random() * 1 + 0.2;
         this.sprite.scale.y = Math.random() * 1 + 0.2;
-        this.sprite.x = app.view.width + this.sprite.width * this.sprite.scale.x / 2 + Math.random() * 100;
-        this.sprite.y = app.view.height - 45;
+        this.sprite.x = index_1.app.view.width + this.sprite.width * this.sprite.scale.x / 2 + Math.random() * 100;
+        this.sprite.y = index_1.app.view.height - 45;
         this.sprite.anchor.set(0.5);
         Obstacle.obstacles.push(this);
-        app.stage.addChild(this.sprite);
+        index_1.app.stage.addChild(this.sprite);
     }
     ;
     set x(value) {
@@ -434,7 +443,7 @@ class Obstacle {
     }
     ;
     removeObstacle() {
-        this.app.stage.removeChild(this.sprite);
+        index_1.app.stage.removeChild(this.sprite);
         Obstacle.obstacles.splice(Obstacle.obstacles.indexOf(this), 1);
     }
     ;
@@ -444,7 +453,7 @@ Obstacle.obstacles = [];
 Obstacle.obstacleTypes = ["rock1", "rock2", "rock3", "rock4", "rock5", "rock6", "rock7"];
 ;
 
-},{}],5:[function(require,module,exports){
+},{"../../index":10}],5:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.BonusLife = void 0;
@@ -505,10 +514,11 @@ exports.BonusLife = BonusLife;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Bullet = void 0;
 const BulletType_1 = require("../Types/BulletType");
+const index_1 = require("../../index");
 class Bullet {
-    constructor(ownerX, ownerY, origin, app) {
-        this.app = app;
-        this.sprite = PIXI.Sprite.from(app.loader.resources[(origin === BulletType_1.BulletOrigin.player) ? "bulletRight" : "bulletLeft"].url);
+    constructor(ownerX, ownerY, origin) {
+        this.isAlive = true;
+        this.sprite = PIXI.Sprite.from(index_1.app.loader.resources[(origin === BulletType_1.BulletOrigin.player) ? "bulletRight" : "bulletLeft"].url);
         this.sprite.x = ownerX;
         this.sprite.y = ownerY;
         this.sprite.scale.x = ((origin === BulletType_1.BulletOrigin.player) ? 0.2 : -0.2);
@@ -517,12 +527,12 @@ class Bullet {
         this.origin = origin;
         this.movementSpeed = ((origin === BulletType_1.BulletOrigin.player) ? 20 : -10);
         Bullet.bullets.push(this);
-        app.stage.addChild(this.sprite);
+        index_1.app.stage.addChild(this.sprite);
     }
     ;
     set x(value) {
         this.sprite.x = value;
-        if ((value > 10 + this.app.view.width) || (value < -10)) {
+        if ((value > 10 + index_1.app.view.width) || (value < -10)) {
             this.removeBullet();
         }
         ;
@@ -561,8 +571,9 @@ class Bullet {
     }
     ;
     removeBullet() {
-        this.app.stage.removeChild(this.sprite);
-        Bullet.bullets.splice(Bullet.bullets.indexOf(this), 1);
+        this.isAlive = false;
+        index_1.app.stage.removeChild(this.sprite);
+        // Bullet.bullets.splice(Bullet.bullets.indexOf(this), 1);
     }
     ;
 }
@@ -570,25 +581,25 @@ exports.Bullet = Bullet;
 Bullet.bullets = [];
 ;
 
-},{"../Types/BulletType":8}],7:[function(require,module,exports){
+},{"../../index":10,"../Types/BulletType":8}],7:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.PlayerShip = void 0;
 const Bullet_1 = require("../Other/Bullet");
 const BulletType_1 = require("../Types/BulletType");
 const Explosion_1 = require("../../Effects/Explosion");
+const index_1 = require("../../index");
 class PlayerShip {
-    constructor(app) {
-        this.app = app;
+    constructor() {
         this._movementSpeed = 5;
         this._livesLeft = 3;
-        this.sprite = PIXI.Sprite.from(app.loader.resources.shipRight.url);
+        this.sprite = PIXI.Sprite.from(index_1.app.loader.resources.shipRight.url);
         this.sprite.scale.x = 0.1;
         this.sprite.scale.y = 0.1;
         this.sprite.x = this.sprite.width / 2;
-        this.sprite.y = app.view.height / 2;
+        this.sprite.y = index_1.app.view.height / 2;
         this.sprite.anchor.set(0.5);
-        app.stage.addChild(this.sprite);
+        index_1.app.stage.addChild(this.sprite);
     }
     ;
     set x(value) {
@@ -624,7 +635,7 @@ class PlayerShip {
     }
     ;
     fire() {
-        return new Bullet_1.Bullet(this.x + this.sprite.width / 2 + 1, this.y + 5, BulletType_1.BulletOrigin.player, this.app);
+        return new Bullet_1.Bullet(this.x + this.sprite.width / 2 + 1, this.y + 5, BulletType_1.BulletOrigin.player);
     }
     ;
     getBounds() {
@@ -632,15 +643,15 @@ class PlayerShip {
     }
     ;
     removePlayer() {
-        new Explosion_1.Explosion(this.app, this.sprite.x, this.sprite.y);
-        this.app.stage.removeChild(this.sprite);
+        new Explosion_1.Explosion(this.sprite.x, this.sprite.y);
+        index_1.app.stage.removeChild(this.sprite);
     }
     ;
 }
 exports.PlayerShip = PlayerShip;
 ;
 
-},{"../../Effects/Explosion":2,"../Other/Bullet":6,"../Types/BulletType":8}],8:[function(require,module,exports){
+},{"../../Effects/Explosion":2,"../../index":10,"../Other/Bullet":6,"../Types/BulletType":8}],8:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.BulletOrigin = void 0;
@@ -655,22 +666,22 @@ var BulletOrigin;
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Parallax = void 0;
+const index_1 = require("../index");
 class Parallax {
-    constructor(textureBack, textureMiddle, textureFront, app) {
-        this.app = app;
+    constructor(textureBack, textureMiddle, textureFront) {
         this.positionX = 0;
         this.scrollSpeed = 2;
-        this.backgroundFar = this.createBackground(app.loader.resources[`${textureBack}`].texture);
-        this.backgroungMiddle = this.createBackground(app.loader.resources[`${textureMiddle}`].texture);
-        this.backgroungFore = this.createBackground(app.loader.resources[`${textureFront}`].texture);
+        this.backgroundFar = this.createBackground(index_1.app.loader.resources[`${textureBack}`].texture);
+        this.backgroungMiddle = this.createBackground(index_1.app.loader.resources[`${textureMiddle}`].texture);
+        this.backgroungFore = this.createBackground(index_1.app.loader.resources[`${textureFront}`].texture);
     }
     ;
     createBackground(texture) {
-        let tiling = new PIXI.extras.TilingSprite(texture, this.app.view.width, this.app.view.height);
+        let tiling = new PIXI.extras.TilingSprite(texture, index_1.app.view.width, index_1.app.view.height);
         tiling.position.set(0, 0);
         tiling.tileScale.x = 2.5;
         tiling.tileScale.y = 5.0;
-        this.app.stage.addChild(tiling);
+        index_1.app.stage.addChild(tiling);
         return tiling;
     }
     ;
@@ -685,15 +696,16 @@ class Parallax {
 exports.Parallax = Parallax;
 ;
 
-},{}],10:[function(require,module,exports){
+},{"../index":10}],10:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.app = void 0;
 const App_1 = require("./App");
-const app = new PIXI.Application({
+exports.app = new PIXI.Application({
     width: window.innerWidth - 15,
     height: window.innerHeight - 25,
     backgroundColor: 0xAAFFFF,
 });
-const game = new App_1.App(app);
+const game = new App_1.App();
 
 },{"./App":1}]},{},[10]);

@@ -1,6 +1,7 @@
 import { Bullet } from '../../Models/Other/Bullet';
 import { BulletOrigin } from '../Types/BulletType';
 import { Explosion } from '../../Effects/Explosion';
+import { app } from '../../index';
 export class Enemy {
     private sprite: PIXI.Sprite;
     private _movementSpeed: number = 1;
@@ -11,7 +12,7 @@ export class Enemy {
     private _isStriked: boolean = false;
 
 
-    public constructor(public app: PIXI.Application) {
+    public constructor() {
         this.shipType = Enemy.enemyShipsTypes[Math.round(Math.random() * 2)];
         this.sprite = PIXI.Sprite.from(app.loader.resources[this.shipType].url);
         this.sprite.scale.x = -0.1;
@@ -36,7 +37,7 @@ export class Enemy {
     };
     public set y(value: number) {
         this.sprite.y = value;
-        if (this.sprite.y > this.app.view.height - this.sprite.height) {
+        if (this.sprite.y > app.view.height - this.sprite.height) {
             this.removeEnemy();
         };
     };
@@ -77,7 +78,6 @@ export class Enemy {
                     : 8
             )),
                 this.y + 5, BulletOrigin.enemy,
-                this.app
             )
         );
     };
@@ -89,8 +89,8 @@ export class Enemy {
         return this.sprite.getBounds();
     };
     public removeEnemy(explosion: boolean = true): void {
-        (explosion) && (new Explosion(this.app, this.sprite.x, this.sprite.y))
-        this.app.stage.removeChild(this.sprite);
+        (explosion) && (new Explosion(this.sprite.x, this.sprite.y))
+        app.stage.removeChild(this.sprite);
         Enemy.enemies.splice(Enemy.enemies.indexOf(this), 1);
     };
 };

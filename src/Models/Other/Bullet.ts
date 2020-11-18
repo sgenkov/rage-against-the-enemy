@@ -1,12 +1,14 @@
 import { BulletOrigin } from '../Types/BulletType';
+import { app } from '../../index';
 
 export class Bullet {
     private sprite: PIXI.Sprite;
     public static bullets: Bullet[] = [];
     private _movementSpeed: number;
     public _origin: BulletOrigin;
+    public isAlive: boolean = true;
 
-    public constructor(ownerX: number, ownerY: number, origin: BulletOrigin, public app: PIXI.Application) {
+    public constructor(ownerX: number, ownerY: number, origin: BulletOrigin) {
         this.sprite = PIXI.Sprite.from(app.loader.resources[(origin === BulletOrigin.player) ? "bulletRight" : "bulletLeft"].url);
         this.sprite.x = ownerX;
         this.sprite.y = ownerY;
@@ -21,7 +23,7 @@ export class Bullet {
 
     public set x(value: number) {
         this.sprite.x = value;
-        if ((value > 10 + this.app.view.width) || (value < -10)) {
+        if ((value > 10 + app.view.width) || (value < -10)) {
             this.removeBullet();
         };
     };
@@ -57,8 +59,10 @@ export class Bullet {
     };
 
     public removeBullet(): void {
-        this.app.stage.removeChild(this.sprite);
-        Bullet.bullets.splice(Bullet.bullets.indexOf(this), 1);
+        this.isAlive = false;
+        app.stage.removeChild(this.sprite);
+        // Bullet.bullets.splice(Bullet.bullets.indexOf(this), 1);
+
     };
 
 };

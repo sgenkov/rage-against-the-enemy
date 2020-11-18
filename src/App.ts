@@ -6,13 +6,14 @@ import { Obstacle } from './Models/Obstacle/Obstacle';
 import { BulletOrigin } from './Models/Types/BulletType';
 import { Explosion } from './Effects/Explosion';
 import { BonusLife } from './Models/Other/BonusLife';
+import { app } from './index';
 export class App {
     private score: number = 0;
     private distanceTraveled: number = 0;
     private hiScore: number = 0;
     private keysPressed: any = {};
-    
-    
+
+
     static InfoText: PIXI.Text = new PIXI.Text("Score: ", {
         fontSize: 35,
         fill: "#ffaa",
@@ -20,13 +21,13 @@ export class App {
         stroke: "#bbbbbb",
         strokeThickness: 0,
     });
-    
+
     private newBonusLife: BonusLife;
     private PLAYER: PlayerShip;
     private PARALLAX: Parallax;
-    constructor(public app: PIXI.Application) {
+    constructor() {
         this.loadAssets();
-        document.body.appendChild(this.app.view);
+        document.body.appendChild(app.view);
         document.addEventListener("keydown", this.keysDown.bind(this));
         document.addEventListener("keyup", this.keysUp.bind(this));
         document.body.addEventListener("pointerdown", () => this.PLAYER.fire());
@@ -73,8 +74,8 @@ export class App {
 
 
     private doneLoading(app: PIXI.Application) {
-        this.PARALLAX = new Parallax("farground", "midground", "foreground", app);
-        this.PLAYER = new PlayerShip(app);
+        this.PARALLAX = new Parallax("farground", "midground", "foreground");
+        this.PLAYER = new PlayerShip();
         app.ticker.add(() => this.gameLoop(app));
     };
 
@@ -109,9 +110,9 @@ export class App {
             setTimeout(() => this.keysPressed["81"] = false, 10);
         };// DELETE THISS++++++++======================================++++++++++++++++++++++++++++++++++++======
 
-        if (this.distanceTraveled % 80 === 0) new Enemy(app);
-        if (this.distanceTraveled % 350 === 0) new Obstacle(app);
-        if ((this.distanceTraveled % 500 === 0) && ((this.score / this.distanceTraveled ) > 0.02 )) {
+        if (this.distanceTraveled % 80 === 0) new Enemy();
+        if (this.distanceTraveled % 350 === 0) new Obstacle();
+        if ((this.distanceTraveled % 500 === 0) && ((this.score / this.distanceTraveled) > 0.02)) {
             this.newBonusLife = new BonusLife(app);
             this.newBonusLife.isInRange = true;
         };
@@ -120,7 +121,7 @@ export class App {
             if (this.newBonusLife.isInRange) {
                 this.newBonusLife.x -= this.newBonusLife.movementSpeed;
                 if (this.collision(this.PLAYER, this.newBonusLife)) {
-                    this.PLAYER.livesLeft ++;
+                    this.PLAYER.livesLeft++;
                     this.newBonusLife.removeBonusLife();
                 };
             };
@@ -144,27 +145,30 @@ export class App {
             };
         });
         Bullet.bullets.forEach((bullet) => {
-            bullet.x += bullet.movementSpeed;
-            if (this.collision(bullet, this.PLAYER)) {
-                new Explosion(app, bullet.x, bullet.y, true);
-                bullet.removeBullet();
-                this.PLAYER.livesLeft--;
-            };
-            Enemy.enemies.forEach((enemy) => {
-                if (this.collision(enemy, bullet)) {
-                    new Explosion(app, bullet.x, bullet.y, true);
+            if (bullet.isAlive === true) {
+                bullet.x += bullet.movementSpeed;
+                if (this.collision(bullet, this.PLAYER)) {
+                    new Explosion(bullet.x, bullet.y, true);
                     bullet.removeBullet();
-                    if (enemy.isStriked) {
-                        this.score += 2;
-                        new Explosion(app, bullet.x, bullet.y, true);
-                        enemy.removeEnemy();
-                    } else {
-                        enemy.isStriked = true;
-                        this.score++;
-                    };
+                    this.PLAYER.livesLeft--;
                 };
-            })
-        });
+                Enemy.enemies.forEach((enemy) => {
+                    if (this.collision(enemy, bullet)) {
+                        new Explosion(bullet.x, bullet.y, true);
+                        bullet.removeBullet();
+                        if (enemy.isStriked) {
+                            this.score += 2;
+                            new Explosion(bullet.x, bullet.y, true);
+                            enemy.removeEnemy();
+                        } else {
+                            enemy.isStriked = true;
+                            this.score++;
+                        };
+                    };
+                })
+            }
+        }
+        );
 
         Obstacle.obstacles.forEach((obstacle) => {
             if (this.collision(obstacle, this.PLAYER)) {
@@ -173,25 +177,31 @@ export class App {
         });
         app.stage.addChild(App.InfoText);
 
+        if (this.distanceTraveled % 200 === 0) {
+            app.stop();
+            Bullet.bullets = Bullet.bullets.filter(bullet => bullet.isAlive === true);
+            app.start();
+        };
+
     };
 
     private reset() {
 
+        app.stop();
         while (Enemy.enemies.length > 0) {
             Enemy.enemies[0].removeEnemy(false);
+            console.log('ENEMIES CLEAR');
+            
         };
-
-        while (Bullet.bullets.length > 0) {
-            Bullet.bullets[0].removeBullet();
-        };
+        Bullet.bullets = Bullet.bullets.filter(bullet => bullet.isAlive === true);
         this.newBonusLife && this.newBonusLife.removeBonusLife();
-
         while (Obstacle.obstacles.length > 0) {
             Obstacle.obstacles[0].removeObstacle();
         };
-
+        
         this.PLAYER.removePlayer();
-        this.PLAYER = new PlayerShip(this.app);
+        app.start();
+        this.PLAYER = new PlayerShip();
         this.distanceTraveled = 0;
 
         if (this.score > this.hiScore) {
@@ -201,8 +211,8 @@ export class App {
     };
 
     private loadAssets() {
-        this.app.loader.baseUrl = "../src/assets";
-        this.app.loader
+        app.loader.baseUrl = "../src/assets";
+        app.loader
             .add("shipRight", "Ships/shipRight.png")
             .add("enemyLeft", "Ships/plane_3_red.png")
             .add("enemyLeft2", "Ships/plane_3_blue.png")
@@ -229,15 +239,15 @@ export class App {
             .add("expl8", "Explosion/keyframes/explosion_08.png")
             .add("expl9", "Explosion/keyframes/explosion_09.png");
         for (let i = 1; i <= 30; ++i) {
-            this.app.loader.add(`live${i}`, `BonusLive/live${i}.png`);
+            app.loader.add(`live${i}`, `BonusLive/live${i}.png`);
         };
 
 
-        this.app.loader.onProgress.add(this.showProgress);
-        this.app.loader.onComplete.add(() => this.doneLoading(this.app));
-        this.app.loader.onError.add(this.reportError);
+        app.loader.onProgress.add(this.showProgress);
+        app.loader.onComplete.add(() => this.doneLoading(app));
+        app.loader.onError.add(this.reportError);
 
-        this.app.loader.load();
-        this.app.stage.interactive = true;
+        app.loader.load();
+        app.stage.interactive = true;
     };
 };

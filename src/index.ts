@@ -1,8 +1,8 @@
 import { App } from './App';
-const app: PIXI.Application = new PIXI.Application({
+export const app: PIXI.Application = new PIXI.Application({
     width: window.innerWidth -15,
     height: window.innerHeight - 25,
     backgroundColor: 0xAAFFFF,
 });
 
-const game = new App(app);
+const game = new App();

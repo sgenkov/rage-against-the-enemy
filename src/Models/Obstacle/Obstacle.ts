@@ -1,12 +1,11 @@
-import { Enemy } from '../Enemy/Enemy';
-
+import { app } from '../../index';
 export class Obstacle {
     private sprite: PIXI.Sprite;
     private _movementSpeed: number = 2;
     public static obstacles: Obstacle[] = [];
     private static obstacleTypes: string[] = ["rock1", "rock2", "rock3","rock4","rock5","rock6","rock7"];
     private obstacleType: string;
-    public constructor(public app: PIXI.Application) {
+    public constructor() {
         this.obstacleType = `${Obstacle.obstacleTypes[Math.round(Math.random() * (Obstacle.obstacleTypes.length - 1))]}`;
         this.sprite = PIXI.Sprite.from(app.loader.resources[`${this.obstacleType}`].url);
         this.sprite.scale.x = Math.random() * 1 + 0.2;
@@ -45,7 +44,7 @@ export class Obstacle {
     };
 
     public removeObstacle(): void {
-        this.app.stage.removeChild(this.sprite);
+        app.stage.removeChild(this.sprite);
         Obstacle.obstacles.splice(Obstacle.obstacles.indexOf(this), 1);
     };
     
