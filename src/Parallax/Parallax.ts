@@ -15,7 +15,7 @@ export class Parallax {
         let tiling: PIXI.extras.TilingSprite = new PIXI.extras.TilingSprite(texture, app.view.width, app.view.height);
         tiling.position.set(0, 0);
         tiling.tileScale.x = 2.5;
-        tiling.tileScale.y = 5.0;
+        tiling.tileScale.y = 5.5;
         app.stage.addChild(tiling);
 
         return tiling;

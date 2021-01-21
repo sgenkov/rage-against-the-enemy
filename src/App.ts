@@ -28,8 +28,10 @@ export class App {
     constructor() {
         this.loadAssets();
         document.body.appendChild(app.view);
-        document.addEventListener("keydown", this.keysDown.bind(this));
-        document.addEventListener("keyup", this.keysUp.bind(this));
+        // document.addEventListener("keydown", this.keysDown.bind(this));
+        // document.addEventListener("keyup", this.keysUp.bind(this));
+        document.addEventListener("keydown", (e) => this.keysDown(e));
+        document.addEventListener("keyup", (e) => this.keysUp(e));
         document.body.addEventListener("pointerdown", () => this.PLAYER.fire());
         document.body.addEventListener("contextmenu", (e) => {
             e.preventDefault();
@@ -105,10 +107,10 @@ export class App {
             this.PLAYER.fire();
             setTimeout(() => this.keysPressed["32"] = false, 10);
         };
-        if (this.keysPressed["81"] === true) { // DELETE THISS++++++++======================================
+        if (this.keysPressed["81"] === true) { // DELETE THISS ++++++++======================================
             console.log(Bullet.bullets);
             setTimeout(() => this.keysPressed["81"] = false, 10);
-        };// DELETE THISS++++++++======================================++++++++++++++++++++++++++++++++++++======
+        };// DELETE THISS ++++++++======================================++++++++++++++++++++++++++++++++++++======
 
         if (this.distanceTraveled % 80 === 0) new Enemy();
         if (this.distanceTraveled % 350 === 0) new Obstacle();

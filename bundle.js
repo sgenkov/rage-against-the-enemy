@@ -19,8 +19,10 @@ class App {
         this.keysPressed = {};
         this.loadAssets();
         document.body.appendChild(index_1.app.view);
-        document.addEventListener("keydown", this.keysDown.bind(this));
-        document.addEventListener("keyup", this.keysUp.bind(this));
+        // document.addEventListener("keydown", this.keysDown.bind(this));
+        // document.addEventListener("keyup", this.keysUp.bind(this));
+        document.addEventListener("keydown", (e) => this.keysDown(e));
+        document.addEventListener("keyup", (e) => this.keysUp(e));
         document.body.addEventListener("pointerdown", () => this.PLAYER.fire());
         document.body.addEventListener("contextmenu", (e) => {
             e.preventDefault();
@@ -680,7 +682,7 @@ class Parallax {
         let tiling = new PIXI.extras.TilingSprite(texture, index_1.app.view.width, index_1.app.view.height);
         tiling.position.set(0, 0);
         tiling.tileScale.x = 2.5;
-        tiling.tileScale.y = 5.0;
+        tiling.tileScale.y = 5.5;
         index_1.app.stage.addChild(tiling);
         return tiling;
     }
